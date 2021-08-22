@@ -97,9 +97,7 @@ export default class SearchResult extends Component {
           showsHorizontalScrollIndicator={false}
           renderItem={({item}) => (
             <TouchableOpacity
-              // onPress={() =>
-              //   this.props.navigation.navigate('detail', {id: item.id})
-              // }
+              onPress={() => this.props.navigation.navigate('detail')}
               style={styles.wrapper2}>
               <View style={styles.boxrow}>
                 <View style={styles.boxGaruda}>

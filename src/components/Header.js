@@ -12,14 +12,17 @@ const Header = ({navigation, route}) => {
           name={
             route.name === 'welcome' ||
             route.name === 'home' ||
-            route.name === 'profile'
+            route.name === 'profile' ||
+            route.name === 'splash'
               ? null
               : 'chevron-left'
             // 'chevron-left'
           }
           size={20}
           color={
-            route.name === 'search' || route.name === 'searchResults'
+            route.name === 'search' ||
+            route.name === 'searchResults' ||
+            route.name === 'detail'
               ? '#fff'
               : '#000'
           }
