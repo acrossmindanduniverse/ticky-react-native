@@ -1,6 +1,7 @@
 import React from 'react';
 import {View, TouchableOpacity, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon2 from 'react-native-vector-icons/Fontisto';
 
 const Header = ({navigation, route}) => {
   return (
@@ -9,20 +10,26 @@ const Header = ({navigation, route}) => {
         {/* {console.log('ini nav', navigation)} */}
         <Icon
           name={
-            route.name === 'welcome' || route.name === 'home'
+            route.name === 'welcome' ||
+            route.name === 'home' ||
+            route.name === 'profile'
               ? null
               : 'chevron-left'
             // 'chevron-left'
           }
-          size={15}
-          color="#000"
+          size={20}
+          color={
+            route.name === 'search' || route.name === 'searchResults'
+              ? '#fff'
+              : '#000'
+          }
         />
       </TouchableOpacity>
       <TouchableOpacity>
-        <Icon
-          name={route.name === 'aaa' ? 'chevron-left' : null}
+        <Icon2
+          name={route.name === 'search' ? 'arrow-expand' : null}
           size={20}
-          color={'gray'}
+          color={route.name === 'search' ? '#fff' : '#000'}
           // color={route.name === 'detail3' ? '#fff' : '#000'}
         />
       </TouchableOpacity>

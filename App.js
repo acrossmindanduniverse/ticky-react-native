@@ -9,6 +9,9 @@ import SignUp from './src/screens/SignUp';
 import Login from './src/screens/Login';
 import ForgotPassword from './src/screens/ForgotPassword';
 import Home from './src/screens/Home';
+import SearchResult from './src/screens/SearchResult';
+import Profile from './src/screens/Profile';
+import Search from './src/screens/Search';
 
 import Header from './src/components/Header';
 
@@ -54,6 +57,30 @@ const App = props => {
         <Stack.Screen
           component={Home}
           name="home"
+          options={{
+            header: Header,
+            headerTransparent: true,
+          }}
+        />
+        <Stack.Screen
+          component={Search}
+          name="search"
+          options={{
+            header: Header,
+            headerTransparent: true,
+          }}
+        />
+        <Stack.Screen
+          component={SearchResult}
+          name="searchResults"
+          options={{
+            header: Header,
+            headerTransparent: true,
+          }}
+        />
+        <Stack.Screen
+          component={Profile}
+          name="profile"
           options={{
             header: Header,
             headerTransparent: true,

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text, View, StyleSheet} from 'react-native';
+import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/dist/AntDesign';
 import Icon2 from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import Icon3 from 'react-native-vector-icons/dist/Feather';
@@ -16,10 +16,12 @@ export default class BottomHeader extends Component {
           <View style={styles.parent3}>
             <Icon2 name="compass" color="#7ECFC0" size={60} />
           </View>
-          <View style={styles.parent3}>
+          <TouchableOpacity
+            onPress={() => this.props.navigation.navigate('profile')}
+            style={styles.parent3}>
             <Icon3 name="user" color="#979797" size={30} />
             <Text style={styles.h1}>Profile</Text>
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
     );

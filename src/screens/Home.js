@@ -43,8 +43,14 @@ export default class Home extends Component {
             searchIcon={{size: 28}}
           />
           <View style={styles.parent2}>
-            <Text style={styles.h1}>Trending destinations</Text>
-            <Text style={styles.h2}>View all</Text>
+            <TouchableOpacity
+              onPress={() => this.props.navigation.navigate('search')}>
+              <Text style={styles.h1}>Trending destinations</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => this.props.navigation.navigate('searchResults')}>
+              <Text style={styles.h2}>View all</Text>
+            </TouchableOpacity>
           </View>
 
           <FlatList
