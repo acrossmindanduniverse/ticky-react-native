@@ -32,7 +32,9 @@ export default class Chat extends Component {
             value={this.state.search}
             searchIcon={{size: 28}}
           />
-          <View style={styles.box1}>
+          <TouchableOpacity
+            onPress={() => this.props.navigation.navigate('roomChat')}
+            style={styles.box1}>
             <View style={styles.imgWrap}>
               <Image style={styles.img} source={img} />
             </View>
@@ -44,7 +46,7 @@ export default class Chat extends Component {
               <Text style={styles.chat}>8:30</Text>
               <Icon name="checkmark-done" color="#6DDA6B" size={30} />
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
     );

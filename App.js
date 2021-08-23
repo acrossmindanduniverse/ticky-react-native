@@ -18,6 +18,7 @@ import BookingDetail from './src/screens/BookingDetail';
 import Chat from './src/screens/Chat';
 import Notif from './src/screens/Notif';
 import EditProfile from './src/screens/EditProfile';
+import RoomChat from './src/screens/RoomChat';
 // import Splash from './src/screens/Splash';
 
 import Header from './src/components/Header';
@@ -144,6 +145,14 @@ const App = props => {
         <Stack.Screen
           component={EditProfile}
           name="editProfile"
+          options={{
+            header: Header,
+            headerTransparent: true,
+          }}
+        />
+        <Stack.Screen
+          component={RoomChat}
+          name="roomChat"
           options={{
             header: Header,
             headerTransparent: true,
