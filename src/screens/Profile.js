@@ -22,7 +22,10 @@ export default class Profile extends Component {
         <View>
           <View style={styles.parent2}>
             <Text style={styles.h1}>Profile</Text>
-            <Text style={styles.h2}>Edit</Text>
+            <TouchableOpacity
+              onPress={() => this.props.navigation.navigate('editProfile')}>
+              <Text style={styles.h2}>Edit</Text>
+            </TouchableOpacity>
           </View>
           <View style={styles.parent3}>
             <View style={styles.imgWrap}>

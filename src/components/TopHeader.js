@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text, View, StyleSheet} from 'react-native';
+import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/dist/Feather';
 
 export default class TopHeader extends Component {
@@ -9,8 +9,24 @@ export default class TopHeader extends Component {
         <View style={styles.parent2}>
           <Text style={styles.h1}> Explore </Text>
           <View style={styles.parent3}>
-            <Icon style={styles.icon1} name="mail" color="#595959" size={25} />
-            <Icon style={styles.icon2} name="bell" color="#595959" size={25} />
+            <TouchableOpacity
+              onPress={() => this.props.navigation.navigate('chat')}>
+              <Icon
+                style={styles.icon1}
+                name="mail"
+                color="#595959"
+                size={25}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => this.props.navigation.navigate('notif')}>
+              <Icon
+                style={styles.icon2}
+                name="bell"
+                color="#595959"
+                size={25}
+              />
+            </TouchableOpacity>
           </View>
         </View>
       </View>

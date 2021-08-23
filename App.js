@@ -15,6 +15,9 @@ import Search from './src/screens/Search';
 import FlightDetail from './src/screens/FlightDetail';
 import Booking from './src/screens/Booking';
 import BookingDetail from './src/screens/BookingDetail';
+import Chat from './src/screens/Chat';
+import Notif from './src/screens/Notif';
+import EditProfile from './src/screens/EditProfile';
 // import Splash from './src/screens/Splash';
 
 import Header from './src/components/Header';
@@ -115,8 +118,32 @@ const App = props => {
           }}
         />
         <Stack.Screen
+          component={Chat}
+          name="chat"
+          options={{
+            header: Header,
+            headerTransparent: true,
+          }}
+        />
+        <Stack.Screen
+          component={Notif}
+          name="notif"
+          options={{
+            header: Header,
+            headerTransparent: true,
+          }}
+        />
+        <Stack.Screen
           component={Profile}
           name="profile"
+          options={{
+            header: Header,
+            headerTransparent: true,
+          }}
+        />
+        <Stack.Screen
+          component={EditProfile}
+          name="editProfile"
           options={{
             header: Header,
             headerTransparent: true,
