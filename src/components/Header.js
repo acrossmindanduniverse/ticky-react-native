@@ -2,6 +2,8 @@ import React from 'react';
 import {View, TouchableOpacity, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Icon2 from 'react-native-vector-icons/Fontisto';
+import Icon3 from 'react-native-vector-icons/Entypo';
+import BookingDetail from '../screens/BookingDetail';
 
 const Header = ({navigation, route}) => {
   return (
@@ -13,7 +15,8 @@ const Header = ({navigation, route}) => {
             route.name === 'welcome' ||
             route.name === 'home' ||
             route.name === 'profile' ||
-            route.name === 'splash'
+            route.name === 'splash' ||
+            route.name === 'booking'
               ? null
               : 'chevron-left'
             // 'chevron-left'
@@ -22,19 +25,24 @@ const Header = ({navigation, route}) => {
           color={
             route.name === 'search' ||
             route.name === 'searchResults' ||
-            route.name === 'detail'
+            route.name === 'detail' ||
+            route.name === 'bookingDetail'
               ? '#fff'
               : '#000'
           }
         />
       </TouchableOpacity>
       <TouchableOpacity>
-        <Icon2
-          name={route.name === 'search' ? 'arrow-expand' : null}
-          size={20}
-          color={route.name === 'search' ? '#fff' : '#000'}
-          // color={route.name === 'detail3' ? '#fff' : '#000'}
-        />
+        {route.name === 'bookingDetail' ? (
+          <Icon3 name="dots-three-vertical" color="#fff" size={20} />
+        ) : (
+          <Icon2
+            name={route.name === 'search' ? 'arrow-expand' : null}
+            size={20}
+            color={route.name === 'search' ? '#fff' : '#000'}
+            // color={route.name === 'detail3' ? '#fff' : '#000'}
+          />
+        )}
       </TouchableOpacity>
     </View>
   );

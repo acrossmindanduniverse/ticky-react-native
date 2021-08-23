@@ -13,6 +13,8 @@ import SearchResult from './src/screens/SearchResult';
 import Profile from './src/screens/Profile';
 import Search from './src/screens/Search';
 import FlightDetail from './src/screens/FlightDetail';
+import Booking from './src/screens/Booking';
+import BookingDetail from './src/screens/BookingDetail';
 // import Splash from './src/screens/Splash';
 
 import Header from './src/components/Header';
@@ -91,6 +93,22 @@ const App = props => {
         <Stack.Screen
           component={FlightDetail}
           name="detail"
+          options={{
+            header: Header,
+            headerTransparent: true,
+          }}
+        />
+        <Stack.Screen
+          component={Booking}
+          name="booking"
+          options={{
+            header: Header,
+            headerTransparent: true,
+          }}
+        />
+        <Stack.Screen
+          component={BookingDetail}
+          name="bookingDetail"
           options={{
             header: Header,
             headerTransparent: true,

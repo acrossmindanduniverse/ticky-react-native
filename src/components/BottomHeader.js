@@ -9,13 +9,17 @@ export default class BottomHeader extends Component {
     return (
       <View style={styles.parent2}>
         <View style={styles.parent}>
-          <View style={styles.parent3}>
+          <TouchableOpacity
+            onPress={() => this.props.navigation.navigate('booking')}
+            style={styles.parent3}>
             <Icon name="calendar" color="#979797" size={30} />
             <Text style={styles.h1}>My Booking</Text>
-          </View>
-          <View style={styles.parent3}>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => this.props.navigation.navigate('home')}
+            style={styles.parent3}>
             <Icon2 name="compass" color="#7ECFC0" size={60} />
-          </View>
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={() => this.props.navigation.navigate('profile')}
             style={styles.parent3}>
