@@ -1,61 +1,125 @@
-import React, {Component} from 'react';
-import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
+import React from 'react';
+import {
+  Text,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ToastAndroid,
+} from 'react-native';
 // import img1 from '../images/ovo1.png';
 import {Input, CheckBox} from 'react-native-elements';
 
-export default class SignUp extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      checked: '',
-    };
-  }
-  render() {
-    return (
-      <View style={styles.parent}>
-        {/* <Image style={styles.img1} source={img1} /> */}
-        <View>
-          <Text style={styles.h3}>Continue as Guest</Text>
-        </View>
-        <View>
-          <Text style={styles.h4}>Register</Text>
-          <View style={styles.wrap1}>
-            <Input style={styles.input} placeholder="Full Name" />
-            <Input
-              style={styles.input}
-              keyboardType="email-address"
-              placeholder="Email"
-            />
-            <Input
-              style={styles.input}
-              secureTextEntry={true}
-              placeholder="Password"
-            />
-          </View>
-        </View>
-        <TouchableOpacity style={styles.btn}>
-          <Text style={styles.btnText}>Sign Up</Text>
-        </TouchableOpacity>
-        <View style={styles.boxWrap}>
-          <CheckBox
-            title="Accept terms and condition"
-            checked={this.state.checked}
-            checkedColor="#7ECFC0"
-            onPress={() => this.setState({checked: !this.state.checked})}
+import {useState} from 'react';
+import {useDispatch} from 'react-redux';
+import {authRegister} from '../redux/actions/auth';
+
+const SignUp = ({navigation}) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullname, setFullname] = useState('');
+  const [checked, setChecked] = useState(false);
+
+  const dispatch = useDispatch();
+
+  const formData = {
+    email: email,
+    password: password,
+    fullname: fullname,
+  };
+
+  console.log(checked);
+
+  const onSubmit = () => {
+    if (formData.fullname.length > 0) {
+      if (formData.email.length > 0) {
+        if (formData.password.length >= 8) {
+          if (checked !== false) {
+            dispatch(authRegister(formData, navigation));
+          } else {
+            ToastAndroid.showWithGravity(
+              'Accept terms and condition',
+              ToastAndroid.LONG,
+              ToastAndroid.TOP,
+            );
+          }
+        } else {
+          ToastAndroid.showWithGravity(
+            'Password Must be length more than 8 Characters',
+            ToastAndroid.LONG,
+            ToastAndroid.TOP,
+          );
+        }
+      } else {
+        ToastAndroid.showWithGravity(
+          'Email cannot empty',
+          ToastAndroid.LONG,
+          ToastAndroid.TOP,
+        );
+      }
+    } else {
+      ToastAndroid.showWithGravity(
+        'Name cannot empty',
+        ToastAndroid.LONG,
+        ToastAndroid.TOP,
+      );
+    }
+  };
+
+  return (
+    <View style={styles.parent}>
+      {/* <Image style={styles.img1} source={img1} /> */}
+      <View>
+        <Text style={styles.h3}>Continue as Guest</Text>
+      </View>
+      <View>
+        <Text style={styles.h4}>Register</Text>
+        <View style={styles.wrap1}>
+          <Input
+            style={styles.input}
+            placeholder="Full Name"
+            value={fullname}
+            onChangeText={value => setFullname(value)}
+          />
+          <Input
+            style={styles.input}
+            keyboardType="email-address"
+            placeholder="Email"
+            value={email}
+            onChangeText={value => setEmail(value)}
+          />
+          <Input
+            style={styles.input}
+            secureTextEntry={true}
+            placeholder="Password"
+            value={password}
+            onChangeText={value => setPassword(value)}
           />
         </View>
-        <View style={styles.bottom}>
-          <Text style={styles.bottomText}>Already have an account?</Text>
-        </View>
-        <TouchableOpacity
-          onPress={() => this.props.navigation.navigate('login')}
-          style={styles.btn2}>
-          <Text style={styles.btnText2}>Sign In</Text>
-        </TouchableOpacity>
       </View>
-    );
-  }
-}
+      <TouchableOpacity onPress={onSubmit} style={styles.btn}>
+        <Text style={styles.btnText}>Sign Up</Text>
+      </TouchableOpacity>
+      <View style={styles.boxWrap}>
+        <CheckBox
+          title="Accept terms and condition"
+          checked={checked}
+          checkedColor="#7ECFC0"
+          onPress={() => setChecked(!checked)}
+        />
+      </View>
+      <View style={styles.bottom}>
+        <Text style={styles.bottomText}>Already have an account?</Text>
+      </View>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('login')}
+        style={styles.btn2}>
+        <Text style={styles.btnText2}>Sign In</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+export default SignUp;
 
 const styles = StyleSheet.create({
   parent: {

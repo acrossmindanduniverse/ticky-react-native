@@ -1,5 +1,11 @@
-import React, {Component} from 'react';
-import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
+import React from 'react';
+import {
+  Text,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ToastAndroid,
+} from 'react-native';
 // import img1 from '../images/ovo1.png';
 import {Input} from 'react-native-elements';
 
@@ -7,59 +13,91 @@ import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import Icon2 from 'react-native-vector-icons/dist/AntDesign';
 import Icon3 from 'react-native-vector-icons/dist/FontAwesome5';
 
-export default class Login extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      checked: '',
-    };
-  }
-  render() {
-    return (
-      <View style={styles.parent}>
-        <View>
-          <Text style={styles.h4}>Login</Text>
-          <View style={styles.wrap1}>
-            <Input style={styles.input} placeholder="Username" />
-            <Input
-              style={styles.input}
-              secureTextEntry={true}
-              placeholder="Password"
-            />
-          </View>
-        </View>
-        <TouchableOpacity
-          onPress={() => this.props.navigation.navigate('home')}
-          style={styles.btn}>
-          <Text style={styles.btnText}>Sign In</Text>
-        </TouchableOpacity>
-        <View style={styles.boxWrap}>
-          <Text style={styles.text1}>Did you forgot your password?</Text>
-          <TouchableOpacity
-            onPress={() => this.props.navigation.navigate('forgot')}>
-            <Text style={styles.text2}>Tap here for reset</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.bottom}>
-          <Text style={styles.bottomText}>or sign in with</Text>
-        </View>
-        <View style={styles.iconWrap}>
-          <TouchableOpacity style={styles.iconWrap2}>
-            <Icon name="facebook" color="#7ECFC0" size={30} />
-          </TouchableOpacity>
+import {authLogin} from '../redux/actions/auth';
+import {useState} from 'react';
+import {useDispatch} from 'react-redux';
 
-          <TouchableOpacity style={styles.iconWrap2}>
-            <Icon2 name="google" color="#7ECFC0" size={30} />
-          </TouchableOpacity>
+const Login = ({navigation}) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-          <TouchableOpacity style={styles.iconWrap2}>
-            <Icon3 name="fingerprint" color="#7ECFC0" size={30} />
-          </TouchableOpacity>
+  const dispatch = useDispatch();
+
+  const formData = {
+    email: email,
+    password: password,
+  };
+
+  const onSubmit = () => {
+    if (formData.email.length > 0) {
+      if (formData.password.length >= 8) {
+        dispatch(authLogin(formData, navigation));
+      } else {
+        ToastAndroid.showWithGravity(
+          'Password Must be length more than 8 Characters',
+          ToastAndroid.LONG,
+          ToastAndroid.TOP,
+        );
+      }
+    } else {
+      ToastAndroid.showWithGravity(
+        'email cannot empty',
+        ToastAndroid.LONG,
+        ToastAndroid.TOP,
+      );
+    }
+  };
+
+  return (
+    <View style={styles.parent}>
+      <View>
+        <Text style={styles.h4}>Login</Text>
+        <View style={styles.wrap1}>
+          <Input
+            style={styles.input}
+            value={email}
+            onChangeText={value => setEmail(value)}
+            placeholder="Email"
+          />
+          <Input
+            style={styles.input}
+            secureTextEntry={true}
+            placeholder="Password"
+            value={password}
+            onChangeText={value => setPassword(value)}
+          />
         </View>
       </View>
-    );
-  }
-}
+      <TouchableOpacity onPress={onSubmit} style={styles.btn}>
+        <Text style={styles.btnText}>Sign In</Text>
+      </TouchableOpacity>
+      <View style={styles.boxWrap}>
+        <Text style={styles.text1}>Did you forgot your password?</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('forgot')}>
+          <Text style={styles.text2}>Tap here for reset</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.bottom}>
+        <Text style={styles.bottomText}>or sign in with</Text>
+      </View>
+      <View style={styles.iconWrap}>
+        <TouchableOpacity style={styles.iconWrap2}>
+          <Icon name="facebook" color="#7ECFC0" size={30} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.iconWrap2}>
+          <Icon2 name="google" color="#7ECFC0" size={30} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.iconWrap2}>
+          <Icon3 name="fingerprint" color="#7ECFC0" size={30} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+export default Login;
 
 const styles = StyleSheet.create({
   parent: {
