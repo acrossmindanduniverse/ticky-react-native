@@ -25,9 +25,8 @@ import Header from './src/components/Header';
 
 const Stack = createStackNavigator();
 
-const App = props => {
+const App = () => {
   return (
-    // <NativeBaseProvider>
     <NavigationContainer>
       <Stack.Navigator>
         {/* <Stack.Screen
@@ -160,7 +159,6 @@ const App = props => {
         />
       </Stack.Navigator>
     </NavigationContainer>
-    // </NativeBaseProvider>
   );
 };
 

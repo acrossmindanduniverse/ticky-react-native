@@ -3,12 +3,17 @@ import {View, TouchableOpacity, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Icon2 from 'react-native-vector-icons/Fontisto';
 import Icon3 from 'react-native-vector-icons/Entypo';
-import BookingDetail from '../screens/BookingDetail';
 
-const Header = ({navigation, route}) => {
+import {useNavigation} from '@react-navigation/native';
+
+const Header = ({route}) => {
+  // const navigation = useNavigation();
   return (
     <View style={HeaderStyles.header}>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
+      <TouchableOpacity
+        style={HeaderStyles.btn1}
+        // onPress={() => navigation.goBack()}
+      >
         {/* {console.log('ini nav', navigation)} */}
         <Icon
           name={
@@ -58,6 +63,10 @@ const HeaderStyles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20,
   },
+  // btn1: {
+  //   height: 30,
+  //   backgroundColor:'blue',
+  // },
 });
 
 export default Header;
