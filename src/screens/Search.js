@@ -5,133 +5,201 @@ import {
   ImageBackground,
   StyleSheet,
   TouchableOpacity,
-  Picker,
 } from 'react-native';
 
 import bg from '../images/img-search.png';
-
+import {Picker} from '@react-native-picker/picker';
 import {CheckBox} from 'react-native-elements';
 
 import Icon from 'react-native-vector-icons/dist/Fontisto';
+import {useState} from 'react';
+import {useRef} from 'react';
+import {useDispatch} from 'react-redux';
+import {getTickets} from '../redux/actions/trx';
 
-export default class Search extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      checked: '',
-    };
+const Search = ({navigation}) => {
+  const dispatch = useDispatch();
+  const [checked, setChecked] = useState(false);
+  const [checked2, setChecked2] = useState(false);
+  const [checked3, setChecked3] = useState(false);
+  const [checkedV, setCheckedV] = useState('economy');
+  const [departure, setDeparture] = useState('Medan');
+  const [destination, setDestination] = useState('Bandung');
+  const pickerRef = useRef();
+  const pickerRef2 = useRef();
 
-    console.log(this.state.checked);
+  function openPicker() {
+    pickerRef.current.focus();
+  }
+  function openPicker2() {
+    pickerRef2.current.focus();
   }
 
-  render() {
-    return (
-      <View style={styles.parent}>
-        <View>
-          <ImageBackground
-            imageStyle={styles.bg}
-            source={bg}
-            style={styles.bgimg}>
-            <Text style={styles.bgText}> Destinations </Text>
-          </ImageBackground>
-          <View style={styles.shadowbox}>
-            <View>
-              <Text style={styles.h1}>From</Text>
-              <Text style={styles.city}>Medan</Text>
-              <Text style={styles.h1}>Indonesia</Text>
-            </View>
-            <View style={styles.box1}>
-              <Icon name="arrow-swap" color="#7ECFC0" size={22} />
-            </View>
-            <View>
-              <Text style={styles.h2}>To</Text>
-              <Text style={styles.city}>Tokyo</Text>
-              <Text style={styles.h2}>Japan</Text>
-            </View>
-          </View>
-          <View style={styles.btnWrap}>
-            <TouchableOpacity style={styles.btn}>
-              <Text style={styles.btnText}>One way</Text>
+  const checkEco = () => {
+    setChecked(!checked);
+    setCheckedV('Economy');
+  };
+  const checkBis = () => {
+    setChecked2(!checked2);
+    setCheckedV('Bussiness');
+  };
+  const checkFirst = () => {
+    setChecked3(!checked3);
+    setCheckedV('First Class');
+  };
+
+  const onSearchFlight = () => {
+    const form = {
+      departure,
+      destination,
+      class: checkedV,
+    };
+    console.log(form);
+    dispatch(getTickets(form));
+    navigation.navigate('searchResults', form);
+  };
+  return (
+    <View style={styles.parent}>
+      <View>
+        <ImageBackground
+          imageStyle={styles.bg}
+          source={bg}
+          style={styles.bgimg}>
+          <Text style={styles.bgText}> Destinations </Text>
+        </ImageBackground>
+        <View style={styles.shadowbox}>
+          <View>
+            <Text style={styles.h1}>From</Text>
+            <TouchableOpacity onPress={openPicker}>
+              <Text style={styles.city}>{departure}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.btn2}>
-              <Text style={styles.btnText2}>Round trip</Text>
+          </View>
+          <View style={styles.box1}>
+            <Icon name="arrow-swap" color="#7ECFC0" size={22} />
+          </View>
+          <View>
+            <Text style={styles.h2}>To</Text>
+            <TouchableOpacity onPress={openPicker2}>
+              <Text style={styles.city}>{destination}</Text>
             </TouchableOpacity>
-          </View>
-          <View style={styles.box2}>
-            <Text style={styles.text1}>Departure</Text>
-          </View>
-
-          <View style={styles.container}>
-            <Picker style={{height: 50, width: 250}}>
-              <Picker.Item
-                label="Monday, 20 July 2020"
-                value="Monday, 20 July 2020"
-              />
-              <Picker.Item
-                label="Monday, 21 July 2020"
-                value="Monday, 21 July 2020"
-              />
-            </Picker>
-          </View>
-
-          <View style={styles.box3}>
-            <Text style={styles.text1}>How many person?</Text>
-          </View>
-
-          <View style={styles.containerWrap}>
-            <View style={styles.container2}>
-              <Picker style={{height: 50, width: 110}}>
-                <Picker.Item label="2 Child" value="2 Child" />
-                <Picker.Item label="4 Adult" value="4 Adult" />
-              </Picker>
-            </View>
-            <View style={styles.container2}>
-              <Picker style={{height: 50, width: 110}}>
-                <Picker.Item label="2 Child" value="2 Child" />
-                <Picker.Item label="4 Adult" value="4 Adult" />
-              </Picker>
-            </View>
-          </View>
-
-          <View style={styles.box3}>
-            <Text style={styles.text1}>Which class do you want?</Text>
-          </View>
-          <View style={styles.cekboxWrap}>
-            <CheckBox
-              containerStyle={styles.cekbox1}
-              containerWrap={styles.cekbox2}
-              checked={this.state.checked}
-              checkedColor="#7ECFC0"
-              onPress={() => this.setState({checked: !this.state.checked})}
-            />
-            <CheckBox
-              containerStyle={styles.cekbox1}
-              containerWrap={styles.cekbox2}
-              checked={this.state.checked}
-              checkedColor="#7ECFC0"
-              onPress={() => this.setState({checked: !this.state.checked})}
-            />
-            <CheckBox
-              containerStyle={styles.cekbox1}
-              containerWrap={styles.cekbox2}
-              checked={this.state.checked}
-              checkedColor="#7ECFC0"
-              onPress={() => this.setState({checked: !this.state.checked})}
-            />
-          </View>
-          <View style={styles.box6}>
-            <Text style={styles.h9}>Economy</Text>
-            <Text style={styles.h9}>Business</Text>
-            <Text style={styles.h9}>First Class</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.btn5}>
-          <Text style={styles.btn5text}>SEARCH FLIGHT</Text>
-        </TouchableOpacity>
+        <View style={styles.btnWrap}>
+          <TouchableOpacity style={styles.btn}>
+            <Text style={styles.btnText}>One way</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.btn2}>
+            <Text style={styles.btnText2}>Round trip</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.box2}>
+          <Text style={styles.text1}>Departure</Text>
+        </View>
+
+        <View style={styles.container}>
+          <Picker style={{height: 50, width: 250}}>
+            <Picker.Item
+              label="Monday, 20 July 2020"
+              value="Monday, 20 July 2020"
+            />
+            <Picker.Item
+              label="Monday, 21 July 2020"
+              value="Monday, 21 July 2020"
+            />
+          </Picker>
+        </View>
+
+        <View style={styles.box3}>
+          <Text style={styles.text1}>How many person?</Text>
+        </View>
+
+        <View style={styles.containerWrap}>
+          <View style={styles.container2}>
+            <Picker style={{height: 50, width: 130}}>
+              <Picker.Item label="2 Child" value="2 Child" />
+              <Picker.Item label="4 Adult" value="4 Adult" />
+            </Picker>
+          </View>
+          <View style={styles.container2}>
+            <Picker style={{height: 50, width: 130}}>
+              <Picker.Item label="2 Child" value="2 Child" />
+              <Picker.Item label="4 Adult" value="4 Adult" />
+            </Picker>
+          </View>
+        </View>
+
+        <View style={styles.box3}>
+          <Text style={styles.text1}>Which class do you want?</Text>
+        </View>
+        <View style={styles.cekboxWrap}>
+          <CheckBox
+            containerStyle={styles.cekbox1}
+            containerWrap={styles.cekbox2}
+            checked={checked}
+            checkedColor="#7ECFC0"
+            onPress={checkEco}
+          />
+          <CheckBox
+            containerStyle={styles.cekbox1}
+            containerWrap={styles.cekbox2}
+            checked={checked2}
+            checkedColor="#7ECFC0"
+            onPress={checkBis}
+          />
+          <CheckBox
+            containerStyle={styles.cekbox1}
+            containerWrap={styles.cekbox2}
+            checked={checked3}
+            checkedColor="#7ECFC0"
+            onPress={checkFirst}
+          />
+        </View>
+        <View style={styles.box6}>
+          <Text style={styles.h9}>Economy</Text>
+          <Text style={styles.h9}>Business</Text>
+          <Text style={styles.h9}>First Class</Text>
+        </View>
       </View>
-    );
-  }
-}
+      <TouchableOpacity style={styles.btn5} onPress={onSearchFlight}>
+        <Text style={styles.btn5text}>SEARCH FLIGHT</Text>
+      </TouchableOpacity>
+      <View>
+        <Picker
+          ref={pickerRef}
+          selectedValue={departure}
+          onValueChange={(itemValue, itemIndex) => setDeparture(itemValue)}>
+          <Picker.Item label="Bandung" value="Bandung" />
+          <Picker.Item label="Jakarta" value="Jakarta" />
+          <Picker.Item label="Surabaya" value="Surabaya" />
+          <Picker.Item label="Medan" value="Medan" />
+          <Picker.Item label="Bali" value="Bali" />
+          <Picker.Item label="Semarang" value="Semarang" />
+          <Picker.Item label="Makassar" value="Makassar" />
+          <Picker.Item label="Jambi" value="Jambi" />
+          <Picker.Item label="Yogyakarta" value="Yogyakarta" />
+          <Picker.Item label="Solo" value="Solo" />
+        </Picker>
+        <Picker
+          ref={pickerRef2}
+          selectedValue={destination}
+          onValueChange={(itemValue, itemIndex) => setDestination(itemValue)}>
+          <Picker.Item label="Bandung" value="Bandung" />
+          <Picker.Item label="Jakarta" value="Jakarta" />
+          <Picker.Item label="Surabaya" value="Surabaya" />
+          <Picker.Item label="Medan" value="Medan" />
+          <Picker.Item label="Bali" value="Bali" />
+          <Picker.Item label="Semarang" value="Semarang" />
+          <Picker.Item label="Makassar" value="Makassar" />
+          <Picker.Item label="Jambi" value="Jambi" />
+          <Picker.Item label="Yogyakarta" value="Yogyakarta" />
+          <Picker.Item label="Solo" value="Solo" />
+        </Picker>
+      </View>
+    </View>
+  );
+};
+
+export default Search;
 
 const styles = StyleSheet.create({
   parent: {

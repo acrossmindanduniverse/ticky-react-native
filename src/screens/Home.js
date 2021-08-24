@@ -32,23 +32,26 @@ export default class Home extends Component {
       <View style={styles.parent}>
         <TopHeader navigation={this.props.navigation} />
         <View style={styles.parent4}>
-          <SearchBar
-            style={styles.search}
-            containerStyle={styles.seacrhWrap}
-            inputStyle={styles.seacrhWrap2}
-            inputContainerStyle={styles.seacrhWrap3}
-            placeholder="Where you want to go?"
-            onChangeText={this.updateSearch}
-            value={this.state.search}
-            searchIcon={{size: 28}}
-          />
+          <TouchableOpacity
+            onPress={() => this.props.navigation.navigate('search')}>
+            <SearchBar
+              style={styles.search}
+              containerStyle={styles.seacrhWrap}
+              inputStyle={styles.seacrhWrap2}
+              inputContainerStyle={styles.seacrhWrap3}
+              placeholder="Where you want to go?"
+              onChangeText={this.updateSearch}
+              value={this.state.search}
+              searchIcon={{size: 28}}
+              disabled
+            />
+          </TouchableOpacity>
           <View style={styles.parent2}>
             <TouchableOpacity
               onPress={() => this.props.navigation.navigate('search')}>
               <Text style={styles.h1}>Trending destinations</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => this.props.navigation.navigate('searchResults')}>
+            <TouchableOpacity>
               <Text style={styles.h2}>View all</Text>
             </TouchableOpacity>
           </View>

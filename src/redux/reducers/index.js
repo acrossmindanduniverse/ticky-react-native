@@ -1,7 +1,7 @@
 import {combineReducers} from 'redux';
 import auth from './auth';
 import user from './user';
-import trx from './trx';
+import {trx} from './trx';
 import chat from './chat';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -20,7 +20,7 @@ const persistUser = {
 const rootReducer = combineReducers({
   auth: persistReducer(persistAuth, auth),
   // user: persistReducer(persistUser, user),
-  // trx,
+  trx,
   // chat,
 });
 

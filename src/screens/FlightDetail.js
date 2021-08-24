@@ -12,146 +12,120 @@ import vector from '../images/vector.png';
 import garuda from '../images/garuda.png';
 
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
-import Icon2 from 'react-native-vector-icons/dist/FontAwesome5';
+import CardFacility from '../components/CardFacility';
 
-export default class FlightDetail extends Component {
-  // state = {
-  //   search: '',
-  //   array: [{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}],
-  // };
-
-  render() {
-    return (
-      <View style={styles.parent}>
-        <View style={styles.nav} />
-        <View style={styles.shadowbox}>
-          <View style={styles.rowbox}>
-            <View>
-              <Text style={styles.city}>IDN</Text>
-              <Text style={styles.h1}>12:33</Text>
+const FlightDetail = ({route}) => {
+  return (
+    <View style={styles.parent}>
+      <View style={styles.nav} />
+      <View style={styles.shadowbox}>
+        <View style={styles.rowbox}>
+          <View>
+            <Text style={styles.city}>{route.params.code_departure}</Text>
+            <Text style={styles.h1}>{route.params.departure_time}</Text>
+          </View>
+          <View style={styles.box1}>
+            <Image source={vector} />
+          </View>
+          <View>
+            <Text style={styles.city}>{route.params.code_destination}</Text>
+            <Text style={styles.h2}>{route.params.arrival_time}</Text>
+          </View>
+        </View>
+        <View style={styles.wrap1}>
+          <Image
+            style={styles.img}
+            source={{
+              uri: `http://localhost:8080${route.params.airline.picture}`,
+            }}
+          />
+          <View style={styles.wrap2}>
+            <View style={styles.star}>
+              <Icon
+                style={styles.starIcon}
+                name="star"
+                color="#FF7F23"
+                size={18}
+              />
+              <Icon
+                style={styles.starIcon}
+                name="star"
+                color="#FF7F23"
+                size={18}
+              />
+              <Icon
+                style={styles.starIcon}
+                name="star"
+                color="#FF7F23"
+                size={18}
+              />
+              <Icon
+                style={styles.starIcon}
+                name="star"
+                color="#FF7F23"
+                size={18}
+              />
             </View>
-            <View style={styles.box1}>
-              <Image source={vector} />
+            <Text style={styles.h5}>120k review</Text>
+          </View>
+        </View>
+        <View style={styles.wrap3}>
+          <View>
+            <Text style={styles.code}>Code</Text>
+            <Text>{route.params.seat}</Text>
+          </View>
+          <View>
+            <Text style={styles.code}>Class</Text>
+            <Text>{route.params.class}</Text>
+          </View>
+          <View>
+            <Text style={styles.code}>Terminal</Text>
+            <Text>{route.params.terminal}</Text>
+          </View>
+          <View>
+            <Text style={styles.code}>Gate</Text>
+            <Text>{route.params.gate}</Text>
+          </View>
+        </View>
+        <View style={styles.wrap9}>
+          <View style={styles.childWrap}>
+            <View style={styles.circle}>
+              <Text style={styles.circleText}>2</Text>
             </View>
-            <View>
-              <Text style={styles.city}>JPN</Text>
-              <Text style={styles.h2}>15:21</Text>
+            <View style={styles.box9}>
+              <Text>Child</Text>
             </View>
           </View>
-          <View style={styles.wrap1}>
-            <Image style={styles.img} source={garuda} />
-            <View style={styles.wrap2}>
-              <View style={styles.star}>
-                <Icon
-                  style={styles.starIcon}
-                  name="star"
-                  color="#FF7F23"
-                  size={18}
-                />
-                <Icon
-                  style={styles.starIcon}
-                  name="star"
-                  color="#FF7F23"
-                  size={18}
-                />
-                <Icon
-                  style={styles.starIcon}
-                  name="star"
-                  color="#FF7F23"
-                  size={18}
-                />
-                <Icon
-                  style={styles.starIcon}
-                  name="star"
-                  color="#FF7F23"
-                  size={18}
-                />
-              </View>
-              <Text style={styles.h5}>120k review</Text>
+          <View style={styles.childWrap}>
+            <View style={styles.circle}>
+              <Text style={styles.circleText}>4</Text>
             </View>
-          </View>
-          <View style={styles.wrap3}>
-            <View>
-              <Text style={styles.code}>Code</Text>
-              <Text>AB-221</Text>
-            </View>
-            <View>
-              <Text style={styles.code}>Class</Text>
-              <Text>Economy</Text>
-            </View>
-            <View>
-              <Text style={styles.code}>Terminal</Text>
-              <Text>A</Text>
-            </View>
-            <View>
-              <Text style={styles.code}>Gate</Text>
-              <Text>221</Text>
-            </View>
-          </View>
-          <View style={styles.wrap9}>
-            <View style={styles.childWrap}>
-              <View style={styles.circle}>
-                <Text style={styles.circleText}>2</Text>
-              </View>
-              <View style={styles.box9}>
-                <Text>Child</Text>
-              </View>
-            </View>
-            <View style={styles.childWrap}>
-              <View style={styles.circle}>
-                <Text style={styles.circleText}>4</Text>
-              </View>
-              <View style={styles.box9}>
-                <Text>Adults</Text>
-              </View>
+            <View style={styles.box9}>
+              <Text>Adults</Text>
             </View>
           </View>
         </View>
-        <View style={styles.facilwrap}>
-          <Text style={styles.facil}>Facilities</Text>
-
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={styles.burgerWrap}>
-              <Icon2
-                style={styles.burger}
-                name="hamburger"
-                color="#FFF"
-                size={18}
-              />
-              <Text style={styles.burgerText}>Snack</Text>
-            </View>
-
-            <View style={styles.burgerWrap}>
-              <Icon2
-                style={styles.burger}
-                name="hamburger"
-                color="#FFF"
-                size={18}
-              />
-              <Text style={styles.burgerText}>Wifi</Text>
-            </View>
-            <View style={styles.burgerWrap}>
-              <Icon2
-                style={styles.burger}
-                name="hamburger"
-                color="#FFF"
-                size={18}
-              />
-              <Text style={styles.burgerText}>Restroom</Text>
-            </View>
-          </ScrollView>
-          <View style={styles.totalWrap}>
-            <Text>Total you’ll pay</Text>
-            <Text style={styles.total}>$ 145,00</Text>
-          </View>
-        </View>
-        <TouchableOpacity style={styles.btn19}>
-          <Text style={styles.h19}>BOOK FLIGHT</Text>
-        </TouchableOpacity>
       </View>
-    );
-  }
-}
+      <View style={styles.facilwrap}>
+        <Text style={styles.facil}>Facilities</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {route.params.item_facilities.map(res => {
+            return <CardFacility name={res.facility.name} />;
+          })}
+        </ScrollView>
+        <View style={styles.totalWrap}>
+          <Text>Total you’ll pay</Text>
+          <Text style={styles.total}>$ {route.params.price}</Text>
+        </View>
+      </View>
+      <TouchableOpacity style={styles.btn19}>
+        <Text style={styles.h19}>BOOK FLIGHT</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+export default FlightDetail;
 
 const styles = StyleSheet.create({
   parent: {
