@@ -20,6 +20,10 @@ export default class Search extends Component {
     this.state = {
       checked: '',
     };
+<<<<<<< Updated upstream
+=======
+    console.log(this.state.checked);
+>>>>>>> Stashed changes
   }
 
   render() {
