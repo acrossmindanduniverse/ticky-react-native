@@ -144,10 +144,10 @@ export default class FlightDetail extends Component {
             <Text>Total you’ll pay</Text>
             <Text style={styles.total}>$ 145,00</Text>
           </View>
-          <TouchableOpacity style={styles.btn19}>
-            <Text style={styles.h19}>BOOK FLIGHT</Text>
-          </TouchableOpacity>
         </View>
+        <TouchableOpacity style={styles.btn19}>
+          <Text style={styles.h19}>BOOK FLIGHT</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -280,6 +280,7 @@ const styles = StyleSheet.create({
   },
   facilwrap: {
     marginHorizontal: 20,
+    flex: 1,
   },
   totalWrap: {
     flexDirection: 'row',
@@ -297,6 +298,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     height: 60,
+    marginHorizontal: 20,
+    marginBottom: 20,
   },
   h19: {
     color: 'white',

@@ -184,11 +184,11 @@ const styles = StyleSheet.create({
   wrapper: {
     marginTop: 10,
     borderRadius: 20,
-    paddingLeft: 72,
+    paddingHorizontal: 20,
     // marginRight: 20,
   },
   wrapper2: {
-    marginRight: 20,
+    marginRight: 25,
   },
   bgimg: {
     width: 150,
