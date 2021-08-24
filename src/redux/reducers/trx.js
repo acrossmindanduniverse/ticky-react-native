@@ -2,7 +2,7 @@ const initialState = {
   data: [],
 };
 
-export const trx = (state = initialState, action) => {
+const trx = (state = initialState, action) => {
   switch (action.type) {
     case 'GET_TICKETS':
       return {
@@ -15,3 +15,5 @@ export const trx = (state = initialState, action) => {
       };
   }
 };
+
+export default trx;
