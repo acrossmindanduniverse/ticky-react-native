@@ -3,6 +3,7 @@ import auth from './auth';
 import user from './user';
 import trx from './trx';
 import chat from './chat';
+import globalReducer from './global';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {persistReducer} from 'redux-persist';
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
   chat,
   user: persistReducer(persistUser, user),
   trx,
+  globalReducer,
 });
 
 export default rootReducer;

@@ -2,7 +2,7 @@ import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 // import {NativeBaseProvider} from 'native-base';
-import {connect} from 'react-redux';
+import {connect, useSelector} from 'react-redux';
 //hello
 //yo
 
@@ -24,10 +24,12 @@ import RoomChat from './src/screens/RoomChat';
 // import Splash from './src/screens/Splash';
 
 import Header from './src/components/Header';
+import Loading from './src/components/Loading';
 
 const Stack = createStackNavigator();
 
 const App = props => {
+  const {isLoading} = useSelector(state => state.globalReducer);
   return (
     <NavigationContainer>
       <Stack.Navigator>
@@ -168,6 +170,7 @@ const App = props => {
           </React.Fragment>
         )}
       </Stack.Navigator>
+      {isLoading && <Loading />}
     </NavigationContainer>
   );
 };

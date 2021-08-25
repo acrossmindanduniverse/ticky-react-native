@@ -175,7 +175,7 @@ const FlightDetail = ({route, createTransaction: transaction, navigation}) => {
           </View>
           <View style={styles.childWrap}>
             <View style={styles.circle}>
-              <Text style={styles.circleText}>4</Text>
+              <Text style={styles.circleText}>2</Text>
             </View>
             <View style={styles.box9}>
               <Text>Adults</Text>
