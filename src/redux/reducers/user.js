@@ -30,7 +30,8 @@ const user = (state = initialState, action) => {
     }
     case 'SEARCH_USER_NEXT': {
       return {
-        search: [...state.search, ...[...action.payload.user]],
+        ...state,
+        search: [...state.search, ...action.payload.user],
         pageInfo: action.payload.pageInfo,
       };
     }
