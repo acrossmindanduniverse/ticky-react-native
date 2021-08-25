@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Text,
   View,
@@ -6,6 +6,7 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
+  Modal,
 } from 'react-native';
 
 import vector from '../images/vector.png';
@@ -13,10 +14,86 @@ import garuda from '../images/garuda.png';
 
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
 import CardFacility from '../components/CardFacility';
+import AntDesign from 'react-native-vector-icons/dist/AntDesign';
+import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
+import {useDispatch, useSelector} from 'react-redux';
+import {createTransaction, getTransactions} from './../redux/actions/trx';
+import {ActivityIndicator} from 'react-native';
 
-const FlightDetail = ({route}) => {
+const FlightDetail = ({route, createTransaction: transaction, navigation}) => {
+  const dispatch = useDispatch();
+  const {token} = useSelector(state => state.auth);
+  // const {transactionToggle} = useSelector(state => state.trx);
+
+  const transactionData = {
+    total_amount: 1,
+    id_ticket: route.params.id,
+  };
+
+  const [modal, setModal] = useState(false);
+  const [spinner, setSpinner] = useState(false);
+
+  const showModal = visible => {
+    setModal(visible);
+  };
+
+  const handleAddToBookingList = () => {
+    setModal(false);
+    setSpinner(true);
+  };
+
+  useEffect(() => {
+    if (spinner) {
+      setTimeout(() => {
+        dispatch(createTransaction(token, transactionData)).then(() => {
+          dispatch(getTransactions(token));
+        });
+        setSpinner(false);
+        navigation.navigate('booking');
+      }, 300);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spinner]);
+
   return (
     <View style={styles.parent}>
+      {spinner && (
+        <Modal transparent={true} style={styles.loadingContainer}>
+          <View style={styles.modalParent}>
+            <ActivityIndicator
+              style={{marginTop: 300}}
+              size="large"
+              color="#fff"
+            />
+          </View>
+        </Modal>
+      )}
+      <Modal
+        visible={modal}
+        onRequestClose={() => setModal(true)}
+        transparent={true}
+        animationType={'fade'}>
+        <TouchableOpacity
+          onPressOut={() => setModal(false)}
+          style={styles.modalParent}>
+          <TouchableWithoutFeedback>
+            <View style={styles.modalContent}>
+              <View style={styles.paymentContainer}>
+                <TouchableOpacity
+                  onPress={handleAddToBookingList}
+                  style={styles.cancelPayment}>
+                  <Text style={styles.paymentText}>Add to booking list</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setModal(false)}
+                  style={styles.saveItem}>
+                  <Text style={styles.paymentText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
+      </Modal>
       <View style={styles.nav} />
       <View style={styles.shadowbox}>
         <View style={styles.rowbox}>
@@ -117,10 +194,10 @@ const FlightDetail = ({route}) => {
           <Text>Total you’ll pay</Text>
           <Text style={styles.total}>$ {route.params.price}</Text>
         </View>
+        <TouchableOpacity onPress={() => showModal(true)} style={styles.btn19}>
+          <Text style={styles.h19}>BOOK FLIGHT</Text>
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.btn19}>
-        <Text style={styles.h19}>BOOK FLIGHT</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -132,7 +209,58 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
-
+  modalParent: {
+    position: 'absolute',
+    width: '100%',
+    zIndex: 1,
+    backgroundColor: '#000000a0',
+    height: '100%',
+  },
+  loadingContainer: {
+    zIndex: 1,
+  },
+  modalContent: {
+    marginHorizontal: 50,
+    backgroundColor: '#fff',
+    borderRadius: 25,
+    marginTop: 200,
+  },
+  closeIcon: {
+    justifyContent: 'center',
+    marginTop: 15,
+    alignItems: 'flex-end',
+    marginRight: 18,
+  },
+  paymentContainer: {
+    justifyContent: 'center',
+    flexDirection: 'row',
+    paddingVertical: 70,
+    alignItems: 'center',
+  },
+  paymentText: {
+    fontSize: 18,
+    color: '#000',
+  },
+  saveItem: {
+    width: '40%',
+    borderRadius: 15,
+    padding: 5,
+    marginHorizontal: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: '#FF7F23',
+    borderWidth: 2,
+  },
+  cancelPayment: {
+    width: '40%',
+    borderRadius: 15,
+    padding: 5,
+    marginHorizontal: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: '#4FCF4D',
+    borderWidth: 2,
+  },
   nav: {
     backgroundColor: '#7ECFC0',
     height: 180,
