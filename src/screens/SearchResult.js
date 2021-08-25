@@ -1,12 +1,76 @@
-import React, {useState} from 'react';
-import {FlatList, StyleSheet, Text, View} from 'react-native';
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react-hooks/exhaustive-deps */
+import axios from 'axios';
+import React, {useRef, useState} from 'react';
+import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Icon2 from 'react-native-vector-icons/dist/Entypo';
 import Icon from 'react-native-vector-icons/dist/Fontisto';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import CardTicket from '../components/CardTicket';
+import {API_URL} from '@env';
+import {useEffect} from 'react';
+import {Picker} from '@react-native-picker/picker';
 
 const SearchResult = ({route, navigation}) => {
   const {data} = useSelector(state => state.trx);
+  const [page, setPage] = useState(1);
+  const [filter, setFilter] = useState('id 0');
+  const dispatch = useDispatch();
+
+  const getMoreTicket = () => {
+    dispatch({type: 'SET_LOADING', payload: true});
+    axios
+      .get(
+        `${API_URL}/tickets/tickets?departure=${route.params.departure}&destination=${route.params.destination}&searchClass=${route.params.class}&page=${page}`,
+      )
+      .then(res => {
+        dispatch({type: 'SET_LOADING', payload: false});
+        dispatch({
+          type: 'GET_TICKETS',
+          payload: [...data, ...res.data.results],
+        });
+      })
+      .catch(err => {
+        console.log(err);
+        dispatch({type: 'SET_LOADING', payload: false});
+      });
+  };
+
+  const ticketSort = () => {
+    dispatch({type: 'SET_LOADING', payload: true});
+    const sort = filter.split(' ');
+    axios
+      .get(
+        `${API_URL}/tickets/tickets?departure=${route.params.departure}&destination=${route.params.destination}&searchClass=${route.params.class}&sort[${sort[0]}]=${sort[1]}`,
+      )
+      .then(res => {
+        dispatch({type: 'SET_LOADING', payload: false});
+        console.log(res.data.results);
+        dispatch({
+          type: 'GET_TICKETS',
+          payload: [...res.data.results],
+        });
+      })
+      .catch(err => {
+        console.log(err);
+        dispatch({type: 'SET_LOADING', payload: false});
+      });
+  };
+  useEffect(() => {
+    ticketSort();
+  }, [filter]);
+
+  useEffect(() => {
+    getMoreTicket();
+  }, [page]);
+  const loadTicket = () => {
+    setPage(page + 1);
+    console.log(page);
+  };
+  const pickerRef = useRef();
+  function openPicker() {
+    pickerRef.current.focus();
+  }
   return (
     <View style={styles.parent}>
       <View style={styles.nav}>
@@ -30,7 +94,7 @@ const SearchResult = ({route, navigation}) => {
       <View style={styles.wrap4}>
         <View>
           <Text style={styles.text4}>Passengger</Text>
-          <Text style={styles.text5}>2 Child 4 Adults</Text>
+          <Text style={styles.text5}>2 Child 2 Adults</Text>
         </View>
         <View>
           <Text style={styles.text4}>Class</Text>
@@ -42,30 +106,48 @@ const SearchResult = ({route, navigation}) => {
         <View>
           <Text style={styles.text6}>{data.length} flight found</Text>
         </View>
-        <View style={styles.wrap6}>
+        <TouchableOpacity onPress={openPicker} style={styles.wrap6}>
           <Text style={styles.text7}>Filter</Text>
           <Icon2 name="select-arrows" color="#000" size={25} />
-        </View>
+        </TouchableOpacity>
       </View>
-
-      <FlatList
-        style={styles.scroll}
-        data={data}
-        vertical
-        showsHorizontalScrollIndicator={false}
-        renderItem={({item}) => (
-          <CardTicket
-            departure={item.code_departure}
-            depTime={item.departure_time}
-            destination={item.code_destination}
-            desTime={item.arrival_time}
-            price={item.price}
-            img={{uri: `http://localhost:8080${item.airline.picture}`}}
-            onPress={() => navigation.navigate('detail', item)}
-          />
-        )}
-        keyExtractor={item => String(item.id)}
-      />
+      {data.length < 1 ? (
+        <View style={styles.wrapperNotFound}>
+          <Text style={styles.textNotFound}>
+            Data yang anda cari tidak ditemukan
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          style={styles.scroll}
+          data={data}
+          vertical
+          showsHorizontalScrollIndicator={false}
+          onEndReached={loadTicket}
+          renderItem={({item}) => (
+            <CardTicket
+              departure={item.code_departure}
+              depTime={item.departure_time}
+              destination={item.code_destination}
+              desTime={item.arrival_time}
+              price={item.price}
+              img={{uri: `http://localhost:8080${item.airline.picture}`}}
+              onPress={() => navigation.navigate('detail', item)}
+            />
+          )}
+          keyExtractor={item => String(item.id)}
+        />
+      )}
+      <View>
+        <Picker
+          style={{width: 1, height: 1}}
+          ref={pickerRef}
+          selectedValue={filter}
+          onValueChange={(itemValue, itemIndex) => setFilter(itemValue)}>
+          <Picker.Item label="Price Low to High" value="Price 0" />
+          <Picker.Item label="Price High to Low" value="Price 1" />
+        </Picker>
+      </View>
     </View>
   );
 };
@@ -214,5 +296,15 @@ const styles = StyleSheet.create({
   },
   wrapper2: {
     marginBottom: 10,
+  },
+  wrapperNotFound: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
+  },
+  textNotFound: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'grey',
   },
 });

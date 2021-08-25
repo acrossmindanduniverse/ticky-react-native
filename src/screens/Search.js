@@ -22,9 +22,9 @@ const Search = ({navigation}) => {
   const [checked, setChecked] = useState(false);
   const [checked2, setChecked2] = useState(false);
   const [checked3, setChecked3] = useState(false);
-  const [checkedV, setCheckedV] = useState('economy');
-  const [departure, setDeparture] = useState('Medan');
-  const [destination, setDestination] = useState('Bandung');
+  const [checkedV, setCheckedV] = useState('Economy');
+  const [departure, setDeparture] = useState('Bandung');
+  const [destination, setDestination] = useState('Jakarta');
   const pickerRef = useRef();
   const pickerRef2 = useRef();
 
@@ -115,15 +115,13 @@ const Search = ({navigation}) => {
 
         <View style={styles.containerWrap}>
           <View style={styles.container2}>
-            <Picker style={{height: 50, width: 130}}>
+            <Picker style={{height: 50, width: 140}}>
               <Picker.Item label="2 Child" value="2 Child" />
-              <Picker.Item label="4 Adult" value="4 Adult" />
             </Picker>
           </View>
           <View style={styles.container2}>
-            <Picker style={{height: 50, width: 130}}>
-              <Picker.Item label="2 Child" value="2 Child" />
-              <Picker.Item label="4 Adult" value="4 Adult" />
+            <Picker style={{height: 50, width: 140}}>
+              <Picker.Item label="2 Adult" value="2 Adult" />
             </Picker>
           </View>
         </View>
@@ -165,6 +163,7 @@ const Search = ({navigation}) => {
       </TouchableOpacity>
       <View>
         <Picker
+          style={{width: 1, height: 1}}
           ref={pickerRef}
           selectedValue={departure}
           onValueChange={(itemValue, itemIndex) => setDeparture(itemValue)}>
@@ -180,6 +179,7 @@ const Search = ({navigation}) => {
           <Picker.Item label="Solo" value="Solo" />
         </Picker>
         <Picker
+          style={{width: 1, height: 1}}
           ref={pickerRef2}
           selectedValue={destination}
           onValueChange={(itemValue, itemIndex) => setDestination(itemValue)}>
@@ -301,7 +301,6 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginHorizontal: 10,
     marginTop: 10,
-    paddingHorizontal: 20,
   },
   box3: {
     marginTop: 20,
