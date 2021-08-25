@@ -1,6 +1,7 @@
 import {http} from '../../helpers/http';
 import {ToastAndroid} from 'react-native';
-import {API_URL} from '@env';
+// import {API_URL} from '@env';
+const API_URL = 'http://192.168.244.1:8080';
 
 export const authLogin = (Data, navigation) => {
   return async dispatch => {

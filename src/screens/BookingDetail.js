@@ -1,72 +1,239 @@
-import React, {Component} from 'react';
-import {Text, StyleSheet, View, Image, TouchableOpacity} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  Text,
+  StyleSheet,
+  View,
+  Image,
+  TouchableOpacity,
+  Modal,
+  TouchableWithoutFeedback,
+  ActivityIndicator,
+} from 'react-native';
 
 import garuda from '../images/garuda2.png';
 import vector from '../images/vector.png';
 import qrcode from '../images/qrcode.png';
+import {connect, useSelector, useDispatch} from 'react-redux';
+import {
+  getDetailTransaction,
+  proceedToPayment,
+  getTransactions,
+} from './../redux/actions/trx';
+import {FlatList} from 'react-native-gesture-handler';
+import {API_URL} from '@env';
 
-export default class BookingDetail extends Component {
-  updateSearch = search => {
-    this.setState({search});
+const BookingDetail = props => {
+  const log = console.log;
+  const dispatch = useDispatch();
+  const {token} = useSelector(state => state.auth);
+  const {detailTransaction} = props.trx;
+  const route = props.route;
+  const [modal, setModal] = useState(false);
+  const [spinner, setSpinner] = useState(false);
+  const timeFormat = {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true,
   };
-  render() {
-    return (
-      <View style={styles.parent}>
-        <View>
-          <Text style={styles.title}>Booking Pass</Text>
-        </View>
-        <TouchableOpacity style={styles.shadowbox}>
-          <View style={styles.garudaWrap}>
-            <Image style={styles.garuda} source={garuda} />
+
+  const showModal = visible => {
+    setModal(visible);
+  };
+
+  const handleProceedToPayment = () => {
+    setSpinner(true);
+    setModal(false);
+  };
+
+  useEffect(() => {
+    if (spinner) {
+      setTimeout(() => {
+        dispatch(proceedToPayment(token, route.params))
+          .then(() => {
+            dispatch(getTransactions(token));
+            props.getDetailTransaction(token, route.params);
+          })
+          .catch(err => {
+            console.log(err);
+          });
+        setSpinner(false);
+      }, 300);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spinner, detailTransaction]);
+
+  log(props.trx, 'params');
+  useEffect(() => {
+    props.getDetailTransaction(token, route.params);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <View style={styles.parent}>
+      {spinner && (
+        <Modal transparent={true}>
+          <View style={styles.modalParent}>
+            <ActivityIndicator
+              style={{marginTop: 300}}
+              size="large"
+              color="#fff"
+            />
           </View>
-          <View style={styles.wrap1}>
-            <Text style={styles.h1}>IDN</Text>
-            <View style={styles.imgWrap}>
-              <Image source={vector} />
+        </Modal>
+      )}
+      <Modal
+        visible={modal}
+        onRequestClose={() => setModal(true)}
+        transparent={true}
+        animationType={'fade'}>
+        <TouchableOpacity
+          onPressOut={() => setModal(false)}
+          style={styles.modalParent}>
+          <TouchableWithoutFeedback>
+            <View style={styles.modalContent}>
+              <View style={styles.paymentContainer}>
+                <TouchableOpacity
+                  onPress={handleProceedToPayment}
+                  style={styles.cancelPayment}>
+                  <Text style={styles.paymentText}>Pay now</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setModal(false)}
+                  style={styles.saveItem}>
+                  <Text style={styles.paymentText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <Text style={styles.h1}>JPN</Text>
-          </View>
-          <View style={styles.wrap2}>
-            <View style={styles.issue}>
-              <Text style={styles.h2}>Eticket issued</Text>
-            </View>
-          </View>
-          <View style={styles.row1}>
-            <View>
-              <Text style={styles.h3}>Status</Text>
-              <Text style={styles.h6}>AB-221</Text>
-            </View>
-            <View>
-              <Text style={styles.h3}>Class</Text>
-              <Text style={styles.h6}>Economy</Text>
-            </View>
-            <View>
-              <Text style={styles.h3}>Terminal</Text>
-              <Text style={styles.h6}>A</Text>
-            </View>
-            <View>
-              <Text style={styles.h3}>Gate</Text>
-              <Text style={styles.h6}>221</Text>
-            </View>
-          </View>
-          <View style={styles.wrapper1}>
-            <Text style={styles.h3}>Departure</Text>
-            <Text style={styles.h6}>Monday, 20 July ‘20 - 12:33</Text>
-          </View>
-          <View style={styles.qrWrap}>
-            <Image source={qrcode} />
-          </View>
+          </TouchableWithoutFeedback>
         </TouchableOpacity>
+      </Modal>
+      <View>
+        <Text style={styles.title}>Booking Pass</Text>
       </View>
-    );
-  }
-}
+      <FlatList
+        data={detailTransaction}
+        renderItem={({item}) => (
+          <TouchableOpacity style={styles.shadowbox}>
+            <View style={styles.garudaWrap}>
+              {item.ticket.airline.picture === null ? (
+                <Image style={styles.garuda} source={garuda} />
+              ) : (
+                <Image
+                  style={styles.garuda}
+                  source={{
+                    uri: `${API_URL}${item.ticket.airline.picture}`,
+                  }}
+                />
+              )}
+            </View>
+            <View style={styles.wrap1}>
+              <Text style={styles.h1}>{`${item.ticket.code_departure}`}</Text>
+              <View style={styles.imgWrap}>
+                <Image source={vector} />
+              </View>
+              <Text style={styles.h1}>{`${item.ticket.code_destination}`}</Text>
+            </View>
+            <View style={styles.wrap1}>
+              {!item.isPayment ? (
+                <TouchableOpacity
+                  onPress={() => showModal(true)}
+                  style={styles.btn1}>
+                  <Text style={styles.btn1h}>Waiting for payment</Text>
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.btn2}>
+                  <Text style={styles.btn1h}>Eticket Issued</Text>
+                </View>
+              )}
+            </View>
+            <View style={styles.row1}>
+              <View>
+                <Text style={styles.h3}>Status</Text>
+                <Text style={styles.h6}>{`${item.ticket.seat}`}</Text>
+              </View>
+              <View>
+                <Text style={styles.h3}>Class</Text>
+                <Text style={styles.h6}>{`${item.ticket.class}`}</Text>
+              </View>
+              <View>
+                <Text style={styles.h3}>Terminal</Text>
+                <Text style={styles.h6}>{`${item.ticket.terminal}`}</Text>
+              </View>
+              <View>
+                <Text style={styles.h3}>Gate</Text>
+                <Text style={styles.h6}>{`${item.ticket.gate}`}</Text>
+              </View>
+            </View>
+            <View style={styles.wrapper1}>
+              <Text style={styles.h3}>Departure</Text>
+              <Text style={styles.h6}>{`${new Date()
+                .toLocaleDateString('ind', timeFormat)
+                .slice(0, 9)}, ${item.ticket.departure_time}`}</Text>
+            </View>
+            <View style={styles.qrWrap}>
+              <Image source={qrcode} />
+            </View>
+          </TouchableOpacity>
+        )}
+      />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   parent: {
     flex: 1,
     paddingVertical: 20,
     backgroundColor: '#7ECFC0',
+  },
+  modalParent: {
+    position: 'absolute',
+    width: '100%',
+    zIndex: 1,
+    backgroundColor: '#000000a0',
+    height: '100%',
+  },
+  modalContent: {
+    marginHorizontal: 50,
+    backgroundColor: '#fff',
+    borderRadius: 25,
+    marginTop: 200,
+  },
+  closeIcon: {
+    justifyContent: 'center',
+    marginTop: 15,
+    alignItems: 'flex-end',
+    marginRight: 18,
+  },
+  paymentContainer: {
+    justifyContent: 'center',
+    flexDirection: 'row',
+    paddingVertical: 70,
+    alignItems: 'center',
+  },
+  paymentText: {
+    fontSize: 18,
+    color: '#000',
+  },
+  saveItem: {
+    width: '40%',
+    borderRadius: 15,
+    padding: 5,
+    marginHorizontal: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: '#FF7F23',
+    borderWidth: 2,
+  },
+  cancelPayment: {
+    width: '40%',
+    borderRadius: 15,
+    padding: 5,
+    marginHorizontal: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: '#4FCF4D',
+    borderWidth: 2,
   },
   title: {
     color: 'white',
@@ -178,13 +345,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginTop: 10,
   },
-
-  // garuda: {
-  //   width: 110,
-  //   height: 60,
-  // },
+  garuda: {
+    resizeMode: 'cover',
+  },
   qrWrap: {
     alignItems: 'center',
     marginTop: 10,
   },
 });
+
+const mapStateToProps = state => ({
+  trx: state.trx,
+  auth: state.auth,
+});
+
+const mapDispatchToProps = {getDetailTransaction};
+
+export default connect(mapStateToProps, mapDispatchToProps)(BookingDetail);

@@ -20,9 +20,9 @@ const persistUser = {
 
 const rootReducer = combineReducers({
   auth: persistReducer(persistAuth, auth),
+  chat,
   user: persistReducer(persistUser, user),
   trx,
-  // chat,
   globalReducer,
 });
 

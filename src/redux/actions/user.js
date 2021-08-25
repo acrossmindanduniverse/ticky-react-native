@@ -12,6 +12,48 @@ export const getUser = token => {
   };
 };
 
+export const searchUser =
+  (token, value, sortBy, sort, page) => async dispatch => {
+    console.log(page, 'search action');
+    try {
+      if (page < 2) {
+        const {data} = await http(token).get(
+          `${API_URL}/users?search=${value}&sort[${sortBy}]=${sort}`,
+        );
+        console.log(data, 'action 123 123');
+        dispatch({
+          type: 'SEARCH_USER',
+          payload: {
+            user: data.pageInfo.totalData.rows,
+            pageInfo: data.pageInfo,
+          },
+        });
+      } else {
+        const {data} = await http(token).get(
+          `${API_URL}/users?search=${value}&sort[${sortBy}]=${sort}&page=${page}`,
+        );
+        dispatch({
+          type: 'SEARCH_USER_NEXT',
+          payload: {
+            user: data.pageInfo.totalData.rows,
+            pageInfo: data.pageInfo,
+          },
+        });
+      }
+    } catch (err) {
+      dispatch({
+        type: 'SEARCH_USER_REJECTED',
+        error: err.response.data.data,
+      });
+    }
+  };
+
+export const searchDefault = () => dispatch => {
+  dispatch({
+    type: 'SEARCH_DEFAULT',
+  });
+};
+
 export const updateProfile = (token, Data) => {
   return async dispatch => {
     const form = new FormData();
