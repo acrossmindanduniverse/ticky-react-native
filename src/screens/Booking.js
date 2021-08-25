@@ -3,7 +3,7 @@ import {Text, StyleSheet, View, Image, TouchableOpacity} from 'react-native';
 
 import BookingHeader from '../components/BookingHeader';
 import BottomHeader from '../components/BottomHeader';
-import {getTransactions} from '../redux/actions/trx';
+import {getTransactions, getDetailTransaction} from '../redux/actions/trx';
 import vector from '../images/vector.png';
 import {connect, useDispatch, useSelector} from 'react-redux';
 import {FlatList} from 'react-native-gesture-handler';
@@ -12,12 +12,14 @@ const Booking = props => {
   const log = console.log;
   const dispatch = useDispatch();
   const {token} = useSelector(state => state.auth);
-  const {transactions} = props.trx;
+  const {transactions, detailTransaction} = props.trx;
   const timeFormat = {
     hour: 'numeric',
     minute: 'numeric',
     hour12: true,
   };
+
+  log(detailTransaction, 'test');
 
   useEffect(() => {
     dispatch(getTransactions(token));
@@ -27,7 +29,7 @@ const Booking = props => {
   return (
     <View style={styles.parent}>
       <BookingHeader navigation={props.navigation} />
-      <View style={{height: '85%'}}>
+      <View style={{}}>
         <FlatList
           data={transactions}
           renderItem={({item}) => (
@@ -117,6 +119,9 @@ const styles = StyleSheet.create({
 
     elevation: 4,
   },
+  // wrap: {
+  //   marginBottom: 100,
+  // },
   wrap1: {
     flexDirection: 'row',
     paddingVertical: 5,

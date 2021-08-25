@@ -21,6 +21,7 @@ import img from '../images/user.png';
 import {connect, useDispatch, useSelector} from 'react-redux';
 import {getChatList} from './../redux/actions/chat';
 import {getUser, searchUser, searchDefault} from './../redux/actions/user';
+import {TextInput} from 'react-native-gesture-handler';
 
 const Chat = props => {
   const log = console.log;
@@ -176,22 +177,24 @@ const Chat = props => {
       </TouchableOpacity>
       <View style={styles.parent2}>
         <Text style={styles.title2}>Chat</Text>
-        <SearchBar
-          style={styles.search}
-          containerStyle={styles.seacrhWrap}
-          inputStyle={styles.seacrhWrap2}
-          inputContainerStyle={styles.seacrhWrap3}
-          placeholder="Search People"
-          onSubmitEditing={handleSearchUser}
-          onChangeText={val =>
-            setSearchData({
-              ...searchData,
-              search: val,
-            })
-          }
-          value={searchData.search}
-          searchIcon={{size: 28}}
-        />
+        <View style={styles.seacrhWrap}>
+          <TouchableOpacity onPress={handleSearchUser}>
+            <Icon name="search" size={28} style={{marginHorizontal: 7}} />
+          </TouchableOpacity>
+          <TextInput
+            styles={styles.seacrhWrap2}
+            placeholder="Search People"
+            onSubmitEditing={handleSearchUser}
+            onChangeText={val =>
+              setSearchData({
+                ...searchData,
+                search: val,
+              })
+            }
+            value={searchData.search}
+            // searchIcon={{size: 28}}
+          />
+        </View>
         <View>
           {searchErr === '' ? (
             <View style={{flexDirection: 'row'}}>
@@ -356,6 +359,8 @@ const styles = StyleSheet.create({
 
   seacrhWrap: {
     backgroundColor: '#F2F3F4',
+    alignItems: 'center',
+    flexDirection: 'row',
     borderColor: '#F2F3F4',
     borderRadius: 10,
     borderWidth: 0,
