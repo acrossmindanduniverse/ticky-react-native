@@ -68,7 +68,7 @@ const BookingDetail = props => {
   useEffect(() => {
     props.getDetailTransaction(token, route.params);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [token, route.params]);
 
   return (
     <View style={styles.parent}>
@@ -115,13 +115,13 @@ const BookingDetail = props => {
       <View>
         <TouchableOpacity style={styles.shadowbox}>
           <View style={styles.garudaWrap}>
-            {detailTransaction.ticket.airline.picture === null ? (
+            {detailTransaction.ticket?.airline.picture === null ? (
               <Image style={styles.garuda} source={garuda} />
             ) : (
               <Image
                 style={styles.garuda}
                 source={{
-                  uri: `${API_URL}${detailTransaction.ticket.airline.picture}`,
+                  uri: `${API_URL}${detailTransaction.ticket?.airline.picture}`,
                 }}
               />
             )}
@@ -130,14 +130,14 @@ const BookingDetail = props => {
             <Text
               style={
                 styles.h1
-              }>{`${detailTransaction.ticket.code_departure}`}</Text>
+              }>{`${detailTransaction.ticket?.code_departure}`}</Text>
             <View style={styles.imgWrap}>
               <Image source={vector} />
             </View>
             <Text
               style={
                 styles.h1
-              }>{`${detailTransaction.ticket.code_destination}`}</Text>
+              }>{`${detailTransaction.ticket?.code_destination}`}</Text>
           </View>
           <View style={styles.wrap1}>
             {!detailTransaction.isPayment ? (
@@ -156,31 +156,33 @@ const BookingDetail = props => {
             <View>
               <Text style={styles.h3}>Status</Text>
               <Text
-                style={styles.h6}>{`${detailTransaction.ticket.seat}`}</Text>
+                style={styles.h6}>{`${detailTransaction.ticket?.seat}`}</Text>
             </View>
             <View>
               <Text style={styles.h3}>Class</Text>
               <Text
-                style={styles.h6}>{`${detailTransaction.ticket.class}`}</Text>
+                style={styles.h6}>{`${detailTransaction.ticket?.class}`}</Text>
             </View>
             <View>
               <Text style={styles.h3}>Terminal</Text>
               <Text
                 style={
                   styles.h6
-                }>{`${detailTransaction.ticket.terminal}`}</Text>
+                }>{`${detailTransaction.ticket?.terminal}`}</Text>
             </View>
             <View>
               <Text style={styles.h3}>Gate</Text>
               <Text
-                style={styles.h6}>{`${detailTransaction.ticket.gate}`}</Text>
+                style={styles.h6}>{`${detailTransaction.ticket?.gate}`}</Text>
             </View>
           </View>
           <View style={styles.wrapper1}>
             <Text style={styles.h3}>Departure</Text>
             <Text style={styles.h6}>{`${new Date()
               .toLocaleDateString('ind', timeFormat)
-              .slice(0, 9)}, ${detailTransaction.ticket.departure_time}`}</Text>
+              .slice(0, 9)}, ${
+              detailTransaction.ticket?.departure_time
+            }`}</Text>
           </View>
           <View style={styles.qrWrap}>
             <Image source={qrcode} />
