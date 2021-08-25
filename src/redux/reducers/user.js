@@ -61,6 +61,12 @@ const user = (state = initialState, action) => {
         errMsg: action.payload,
       };
     }
+    case 'CLEAR_PROFILE': {
+      return {
+        ...state,
+        details: {},
+      };
+    }
     // case 'COMPARE': {
     //   return {
     //     ...state,

@@ -68,6 +68,9 @@ export const authRegister = (Data, navigation) => {
   };
 };
 
-export const authLogout = () => ({
-  type: 'AUTH_LOGOUT',
-});
+export const authLogout = () => {
+  return async dispatch => {
+    dispatch({type: 'AUTH_LOGOUT'});
+    dispatch({type: 'CLEAR_PROFILE'});
+  };
+};
