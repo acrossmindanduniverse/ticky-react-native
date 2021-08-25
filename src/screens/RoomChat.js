@@ -1,4 +1,6 @@
-import React, {Component} from 'react';
+/* eslint-disable radix */
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, {useRef, useState, useEffect} from 'react';
 import {
   Text,
   View,
@@ -6,107 +8,154 @@ import {
   ScrollView,
   StyleSheet,
   Image,
+  FlatList,
 } from 'react-native';
 
 import img from '../images/chat1.png';
 
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
 import {Input} from 'react-native-elements';
+import {sendChat, getChatRoom} from '../redux/actions/chat';
+import {connect} from 'react-redux';
+import {io} from 'socket.io-client';
+import {APP_URL_LOCAL} from '@env';
+import {TextInput} from 'react-native-gesture-handler';
 
-export default class RoomChat extends Component {
-  render() {
-    return (
-      <View style={styles.parent}>
-        <View style={styles.parent2}>
-          <View style={styles.parentTop}>
-            <Image style={styles.imgTop} source={img} />
-            <Text style={styles.top1}>Zulaikha</Text>
-          </View>
+const RoomChat = props => {
+  const log = console.log;
+  const socket = io(`${APP_URL_LOCAL}`);
+
+  const route = props.route;
+  const {chatRoom} = props.chat;
+  const scrollView = useRef();
+  const [chatData, setChatData] = useState({
+    message: '',
+    // attachment: '',
+  });
+  const timeFormat = {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true,
+  };
+  const id = '1';
+  const token =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ1c2VyMUBtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJFJwY0E2NHlqeW1EbE11SXdZYjZzSWVoQVdzWWxkbmpXTDZnNnhiaEZSTWRCOU5HNHVwam51IiwiaWF0IjoxNjI5ODAxMjg1LCJleHAiOjE2Mjk4ODc2ODV9.1YiBd1Ye8YsLQ1ia4LY2LZCWV3Fj6Sft3iAvzqr7P04';
+
+  const handleScrollToBottom = () => {
+    scrollView.current.scrollToEnd({animated: true});
+  };
+
+  useEffect(() => {
+    socket.on(route.params, data => {
+      props.getChatRoom(token, data.sender);
+      log(data, 'real time');
+    });
+  }, []);
+
+  log(route, 'route');
+
+  useEffect(() => {
+    props.getChatRoom(
+      token,
+      route.params.sender !== parseInt(id)
+        ? route.params.sender
+        : route.params.recipient,
+    );
+  }, [route.params]);
+
+  log(chatData);
+
+  const handleSendChat = () => {
+    props.sendChat(
+      token,
+      route.params.sender !== parseInt(id)
+        ? route.params.sender
+        : route.params.recipient,
+      chatData,
+    );
+  };
+
+  return (
+    <View style={styles.parent}>
+      <View style={styles.parent2}>
+        <View style={styles.parentTop}>
+          <Image style={styles.imgTop} source={img} />
+          <Text style={styles.top1}>Zulaikha</Text>
         </View>
-        <ScrollView
-          ref={ref => {
-            this.scrollView = ref;
-          }}
-          onContentSizeChange={() =>
-            this.scrollView.scrollToEnd({animated: true})
-          }
-          showsVerticalScrollIndicator={false}
-          vertical={true}>
-          <View style={styles.parent8}>
-            <View style={styles.box1}>
-              <View style={styles.box2}>
-                <View style={styles.chatWrap}>
-                  <Text style={styles.Textchat}>
-                    Hey, welcome to Coffee Time! Today is Sunday and you know
-                    what? You will get a cup of coffee free only at 7 to 9 AM.
-                    If you still have some questions to ask, let me know. Have a
-                    wonderful day!
-                  </Text>
+      </View>
+      <ScrollView
+        ref={scrollView}
+        onContentSizeChange={handleScrollToBottom}
+        showsVerticalScrollIndicator={false}
+        vertical={true}>
+        <View style={styles.parent8}>
+          <FlatList
+            data={chatRoom}
+            renderItem={({item}) =>
+              item.sender === parseInt(id) ? (
+                <View style={styles.box1}>
+                  {log(typeof item.sender)}
+                  <View style={styles.box2}>
+                    <View style={styles.chatWrap}>
+                      <Text style={styles.Textchat}>{item.message}</Text>
+                    </View>
+                    <Text style={styles.chat}>{`${new Date(item.createdAt)
+                      .toLocaleDateString('en-US', timeFormat)
+                      .slice(10)}`}</Text>
+                  </View>
+                  <View style={styles.imgWrap}>
+                    <Image style={styles.img} source={img} />
+                  </View>
                 </View>
-                <Text style={styles.chat}>8:30</Text>
-              </View>
-              <View style={styles.imgWrap}>
-                <Image style={styles.img} source={img} />
-              </View>
-            </View>
-
-            <View style={styles.box1t}>
-              <View style={styles.imgWrapt}>
-                <Image style={styles.imgt} source={img} />
-              </View>
-              <View style={styles.box2t}>
-                <View style={styles.chatWrapt}>
-                  <Text style={styles.Textchatt}>What?</Text>
+              ) : (
+                <View style={styles.box1t}>
+                  <View style={styles.imgWrapt}>
+                    <Image style={styles.imgt} source={img} />
+                  </View>
+                  <View style={styles.box2t}>
+                    <View style={styles.chatWrapt}>
+                      <Text style={styles.Textchatt}>{item.message}</Text>
+                    </View>
+                    <Text style={styles.chatt}>{`${new Date(item.createdAt)
+                      .toLocaleDateString('en-US', timeFormat)
+                      .slice(10)}`}</Text>
+                  </View>
                 </View>
-                <Text style={styles.chatt}>8:30</Text>
-              </View>
-            </View>
+              )
+            }
+            keyExtractor={() => String(route.params.sender)}
+          />
+        </View>
+      </ScrollView>
 
-            <View style={styles.box1}>
-              <View style={styles.box2}>
-                <View style={styles.chatWrap}>
-                  <Text style={styles.Textchat}>
-                    Hey, welcome to Coffee Time! Today is Sunday and you know
-                    what? You will get a cup of coffee free only at 7 to 9 AM.
-                    If you still have some questions to ask, let me know. Have a
-                    wonderful day!
-                  </Text>
-                </View>
-                <Text style={styles.chat}>8:30</Text>
-              </View>
-              <View style={styles.imgWrap}>
-                <Image style={styles.img} source={img} />
-              </View>
-            </View>
-
-            <View style={styles.box1t}>
-              <View style={styles.imgWrapt}>
-                <Image style={styles.imgt} source={img} />
-              </View>
-              <View style={styles.box2t}>
-                <View style={styles.chatWrapt}>
-                  <Text style={styles.Textchatt}>What?</Text>
-                </View>
-                <Text style={styles.chatt}>8:30</Text>
-              </View>
-            </View>
-          </View>
-        </ScrollView>
-
-        <View style={styles.inputWrap}>
-          <Input
+      <View style={styles.inputWrap}>
+        <View style={styles.inputContainer}>
+          <TouchableOpacity onPress={handleSendChat}>
+            <Icon
+              name="camera"
+              size={24}
+              color="#9F9F9F"
+              style={{marginRight: 10}}
+            />
+          </TouchableOpacity>
+          <TextInput
             placeholder="Type a message..."
-            leftIcon={
-              <TouchableOpacity>
-                <Icon name="camera" size={24} color="#9F9F9F" />
-              </TouchableOpacity>
+            style={{width: '80%', fontSize: 20}}
+            value={chatData.message}
+            onPressOut={handleScrollToBottom}
+            onSubmitEditing={handleSendChat}
+            onChangeText={val =>
+              setChatData({
+                ...chatData,
+                message: val,
+              })
             }
           />
         </View>
       </View>
-    );
-  }
-}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   parent: {
@@ -148,6 +197,7 @@ const styles = StyleSheet.create({
   box1: {
     marginTop: 10,
     flexDirection: 'row',
+    justifyContent: 'flex-end',
   },
   box2: {
     paddingRight: 40,
@@ -232,7 +282,19 @@ const styles = StyleSheet.create({
   top2: {
     color: '#9F9F9F',
   },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   inputWrap: {
     marginHorizontal: 20,
   },
 });
+
+const mapStateToProps = state => ({
+  chat: state.chat,
+});
+
+const mapDispatchToProps = {sendChat, getChatRoom};
+
+export default connect(mapStateToProps, mapDispatchToProps)(RoomChat);

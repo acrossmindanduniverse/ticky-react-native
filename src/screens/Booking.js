@@ -1,67 +1,79 @@
-import React, {Component} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Text, StyleSheet, View, Image, TouchableOpacity} from 'react-native';
 
 import BookingHeader from '../components/BookingHeader';
 import BottomHeader from '../components/BottomHeader';
+import {getTransactions} from '../redux/actions/trx';
 import vector from '../images/vector.png';
+import {connect} from 'react-redux';
+import {FlatList} from 'react-native-gesture-handler';
 
-export default class Booking extends Component {
-  updateSearch = search => {
-    this.setState({search});
+const Booking = props => {
+  const log = console.log;
+  const {transactions} = props.trx;
+  const timeFormat = {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true,
   };
-  render() {
-    return (
-      <View style={styles.parent}>
-        <BookingHeader navigation={this.props.navigation} />
-        <TouchableOpacity
-          onPress={() => this.props.navigation.navigate('bookingDetail')}
-          style={styles.shadowbox}>
-          <Text>Monday, 20 July ‘20 - 12:33</Text>
-          <View style={styles.wrap1}>
-            <Text style={styles.h1}>IDN</Text>
-            <View style={styles.imgWrap}>
-              <Image source={vector} />
-            </View>
-            <Text style={styles.h1}>JPN</Text>
-          </View>
-          <View style={styles.wrap2}>
-            <Text style={styles.h2}>Garuda Indonesia, AB-221</Text>
-          </View>
-          <View style={styles.wrap3}>
-            <Text style={styles.h3}>Status</Text>
-            <View style={styles.btn1}>
-              <Text style={styles.btn1h}>Waiting for payment</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
+  const token =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ1c2VyMUBtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJFJwY0E2NHlqeW1EbE11SXdZYjZzSWVoQVdzWWxkbmpXTDZnNnhiaEZSTWRCOU5HNHVwam51IiwiaWF0IjoxNjI5ODAxMjg1LCJleHAiOjE2Mjk4ODc2ODV9.1YiBd1Ye8YsLQ1ia4LY2LZCWV3Fj6Sft3iAvzqr7P04';
 
-        <TouchableOpacity
-          onPress={() => this.props.navigation.navigate('bookingDetail')}
-          style={styles.shadowbox2}>
-          <Text>Monday, 20 July ‘20 - 12:33</Text>
-          <View style={styles.wrap1}>
-            <Text style={styles.h1}>IDN</Text>
-            <View style={styles.imgWrap}>
-              <Image source={vector} />
-            </View>
-            <Text style={styles.h1}>JPN</Text>
-          </View>
-          <View style={styles.wrap2}>
-            <Text style={styles.h2}>Garuda Indonesia, AB-221</Text>
-          </View>
-          <View style={styles.wrap3}>
-            <Text style={styles.h3}>Status</Text>
-            <View style={styles.btn2}>
-              <Text style={styles.btn1h}>Eticket issued</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
+  useEffect(() => {
+    props.getTransactions(token);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-        <BottomHeader navigation={this.props.navigation} />
+  return (
+    <View style={styles.parent}>
+      <BookingHeader navigation={props.navigation} />
+      <View style={{height: '85%'}}>
+        <FlatList
+          data={transactions}
+          renderItem={({item}) => (
+            <TouchableOpacity
+              onPress={() =>
+                props.navigation.navigate('bookingDetail', item.id)
+              }
+              style={styles.shadowbox}>
+              <Text>{`${new Date()
+                .toLocaleDateString('ind', timeFormat)
+                .slice(0, 9)}, ${item.ticket.departure_time}`}</Text>
+              <View style={styles.wrap1}>
+                {console.log(item.id, 'test test')}
+                <Text style={styles.h1}>{`${item.ticket.code_departure}`}</Text>
+                <View style={styles.imgWrap}>
+                  <Image source={vector} />
+                </View>
+                <Text
+                  style={styles.h1}>{`${item.ticket.code_destination}`}</Text>
+              </View>
+              <View style={styles.wrap2}>
+                <Text style={styles.h2}>
+                  {`${item.ticket.airline.name}`}, {`${item.ticket.seat}`}
+                </Text>
+              </View>
+              <View style={styles.wrap3}>
+                <Text style={styles.h3}>Status</Text>
+                {!item.isPayment ? (
+                  <View style={styles.btn1}>
+                    <Text style={styles.btn1h}>Waiting for payment</Text>
+                  </View>
+                ) : (
+                  <View style={styles.btn2}>
+                    <Text style={styles.btn1h}>Eticket Issued</Text>
+                  </View>
+                )}
+              </View>
+            </TouchableOpacity>
+          )}
+        />
       </View>
-    );
-  }
-}
+
+      <BottomHeader navigation={props.navigation} />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   parent: {
@@ -155,3 +167,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
+const mapStateToProps = state => ({
+  trx: state.trx,
+});
+
+const mapDispatchToProps = {getTransactions};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Booking);

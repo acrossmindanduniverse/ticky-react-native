@@ -1,66 +1,106 @@
-import React, {Component} from 'react';
+import React, {useEffect} from 'react';
 import {Text, StyleSheet, View, Image, TouchableOpacity} from 'react-native';
 
 import garuda from '../images/garuda2.png';
 import vector from '../images/vector.png';
 import qrcode from '../images/qrcode.png';
+import {connect} from 'react-redux';
+import {getDetailTransaction} from './../redux/actions/trx';
+import {FlatList} from 'react-native-gesture-handler';
+const APP_URL_LOCAL = 'http://192.168.244.1:8080';
 
-export default class BookingDetail extends Component {
-  updateSearch = search => {
-    this.setState({search});
+const BookingDetail = props => {
+  const log = console.log;
+  const {detailTransaction} = props.trx;
+  const route = props.route;
+  const token =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ1c2VyMUBtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJFJwY0E2NHlqeW1EbE11SXdZYjZzSWVoQVdzWWxkbmpXTDZnNnhiaEZSTWRCOU5HNHVwam51IiwiaWF0IjoxNjI5ODAxMjg1LCJleHAiOjE2Mjk4ODc2ODV9.1YiBd1Ye8YsLQ1ia4LY2LZCWV3Fj6Sft3iAvzqr7P04';
+  const timeFormat = {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true,
   };
-  render() {
-    return (
-      <View style={styles.parent}>
-        <View>
-          <Text style={styles.title}>Booking Pass</Text>
-        </View>
-        <TouchableOpacity style={styles.shadowbox}>
-          <View style={styles.garudaWrap}>
-            <Image style={styles.garuda} source={garuda} />
-          </View>
-          <View style={styles.wrap1}>
-            <Text style={styles.h1}>IDN</Text>
-            <View style={styles.imgWrap}>
-              <Image source={vector} />
-            </View>
-            <Text style={styles.h1}>JPN</Text>
-          </View>
-          <View style={styles.wrap2}>
-            <View style={styles.issue}>
-              <Text style={styles.h2}>Eticket issued</Text>
-            </View>
-          </View>
-          <View style={styles.row1}>
-            <View>
-              <Text style={styles.h3}>Status</Text>
-              <Text style={styles.h6}>AB-221</Text>
-            </View>
-            <View>
-              <Text style={styles.h3}>Class</Text>
-              <Text style={styles.h6}>Economy</Text>
-            </View>
-            <View>
-              <Text style={styles.h3}>Terminal</Text>
-              <Text style={styles.h6}>A</Text>
-            </View>
-            <View>
-              <Text style={styles.h3}>Gate</Text>
-              <Text style={styles.h6}>221</Text>
-            </View>
-          </View>
-          <View style={styles.wrapper1}>
-            <Text style={styles.h3}>Departure</Text>
-            <Text style={styles.h6}>Monday, 20 July ‘20 - 12:33</Text>
-          </View>
-          <View style={styles.qrWrap}>
-            <Image source={qrcode} />
-          </View>
-        </TouchableOpacity>
+
+  log(props.trx, 'params');
+  useEffect(() => {
+    props.getDetailTransaction(token, route.params);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <View style={styles.parent}>
+      <View>
+        <Text style={styles.title}>Booking Pass</Text>
       </View>
-    );
-  }
-}
+      <FlatList
+        data={detailTransaction}
+        renderItem={({item}) => (
+          <TouchableOpacity style={styles.shadowbox}>
+            <View style={styles.garudaWrap}>
+              {item.ticket.airline.picture === null ? (
+                <Image style={styles.garuda} source={garuda} />
+              ) : (
+                <Image
+                  style={styles.garuda}
+                  source={{
+                    uri: `${APP_URL_LOCAL}${item.ticket.airline.picture}`,
+                  }}
+                />
+              )}
+            </View>
+            <View style={styles.wrap1}>
+              <Text style={styles.h1}>{`${item.ticket.code_departure}`}</Text>
+              <View style={styles.imgWrap}>
+                <Image source={vector} />
+              </View>
+              <Text style={styles.h1}>{`${item.ticket.code_destination}`}</Text>
+            </View>
+            <View style={styles.wrap1}>
+              {!item.isPayment ? (
+                <TouchableOpacity
+                  onPress={() => props.navigation.navigate('detail', item.id)}
+                  style={styles.btn1}>
+                  <Text style={styles.btn1h}>Waiting for payment</Text>
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.btn2}>
+                  <Text style={styles.btn1h}>Eticket Issued</Text>
+                </View>
+              )}
+            </View>
+            <View style={styles.row1}>
+              <View>
+                <Text style={styles.h3}>Status</Text>
+                <Text style={styles.h6}>{`${item.ticket.seat}`}</Text>
+              </View>
+              <View>
+                <Text style={styles.h3}>Class</Text>
+                <Text style={styles.h6}>{`${item.ticket.class}`}</Text>
+              </View>
+              <View>
+                <Text style={styles.h3}>Terminal</Text>
+                <Text style={styles.h6}>{`${item.ticket.terminal}`}</Text>
+              </View>
+              <View>
+                <Text style={styles.h3}>Gate</Text>
+                <Text style={styles.h6}>{`${item.ticket.gate}`}</Text>
+              </View>
+            </View>
+            <View style={styles.wrapper1}>
+              <Text style={styles.h3}>Departure</Text>
+              <Text style={styles.h6}>{`${new Date()
+                .toLocaleDateString('ind', timeFormat)
+                .slice(0, 9)}, ${item.ticket.departure_time}`}</Text>
+            </View>
+            <View style={styles.qrWrap}>
+              <Image source={qrcode} />
+            </View>
+          </TouchableOpacity>
+        )}
+      />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   parent: {
@@ -178,13 +218,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginTop: 10,
   },
-
-  // garuda: {
-  //   width: 110,
-  //   height: 60,
-  // },
+  garuda: {
+    resizeMode: 'cover',
+  },
   qrWrap: {
     alignItems: 'center',
     marginTop: 10,
   },
 });
+
+const mapStateToProps = state => ({
+  trx: state.trx,
+  auth: state.auth,
+});
+
+const mapDispatchToProps = {getDetailTransaction};
+
+export default connect(mapStateToProps, mapDispatchToProps)(BookingDetail);

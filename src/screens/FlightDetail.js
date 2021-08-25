@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {useEffect} from 'react';
 import {
   Text,
   View,
@@ -13,145 +13,148 @@ import garuda from '../images/garuda.png';
 
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
 import Icon2 from 'react-native-vector-icons/dist/FontAwesome5';
+import {proceedToPayment} from '../redux/actions/trx';
+import {connect} from 'react-redux';
 
-export default class FlightDetail extends Component {
-  // state = {
-  //   search: '',
-  //   array: [{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}],
-  // };
+const FlightDetail = props => {
+  const route = props.route;
+  const token =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ1c2VyMUBtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJFJwY0E2NHlqeW1EbE11SXdZYjZzSWVoQVdzWWxkbmpXTDZnNnhiaEZSTWRCOU5HNHVwam51IiwiaWF0IjoxNjI5ODAxMjg1LCJleHAiOjE2Mjk4ODc2ODV9.1YiBd1Ye8YsLQ1ia4LY2LZCWV3Fj6Sft3iAvzqr7P04';
 
-  render() {
-    return (
-      <View style={styles.parent}>
-        <View style={styles.nav} />
-        <View style={styles.shadowbox}>
-          <View style={styles.rowbox}>
-            <View>
-              <Text style={styles.city}>IDN</Text>
-              <Text style={styles.h1}>12:33</Text>
-            </View>
-            <View style={styles.box1}>
-              <Image source={vector} />
-            </View>
-            <View>
-              <Text style={styles.city}>JPN</Text>
-              <Text style={styles.h2}>15:21</Text>
-            </View>
+  const handlePay = () => {
+    props.proceedToPayment(token, route.params);
+  };
+
+  return (
+    <View style={styles.parent}>
+      <View style={styles.nav} />
+      <View style={styles.shadowbox}>
+        <View style={styles.rowbox}>
+          <View>
+            <Text style={styles.city}>IDN</Text>
+            <Text style={styles.h1}>12:33</Text>
           </View>
-          <View style={styles.wrap1}>
-            <Image style={styles.img} source={garuda} />
-            <View style={styles.wrap2}>
-              <View style={styles.star}>
-                <Icon
-                  style={styles.starIcon}
-                  name="star"
-                  color="#FF7F23"
-                  size={18}
-                />
-                <Icon
-                  style={styles.starIcon}
-                  name="star"
-                  color="#FF7F23"
-                  size={18}
-                />
-                <Icon
-                  style={styles.starIcon}
-                  name="star"
-                  color="#FF7F23"
-                  size={18}
-                />
-                <Icon
-                  style={styles.starIcon}
-                  name="star"
-                  color="#FF7F23"
-                  size={18}
-                />
-              </View>
-              <Text style={styles.h5}>120k review</Text>
-            </View>
+          <View style={styles.box1}>
+            <Image source={vector} />
           </View>
-          <View style={styles.wrap3}>
-            <View>
-              <Text style={styles.code}>Code</Text>
-              <Text>AB-221</Text>
-            </View>
-            <View>
-              <Text style={styles.code}>Class</Text>
-              <Text>Economy</Text>
-            </View>
-            <View>
-              <Text style={styles.code}>Terminal</Text>
-              <Text>A</Text>
-            </View>
-            <View>
-              <Text style={styles.code}>Gate</Text>
-              <Text>221</Text>
-            </View>
-          </View>
-          <View style={styles.wrap9}>
-            <View style={styles.childWrap}>
-              <View style={styles.circle}>
-                <Text style={styles.circleText}>2</Text>
-              </View>
-              <View style={styles.box9}>
-                <Text>Child</Text>
-              </View>
-            </View>
-            <View style={styles.childWrap}>
-              <View style={styles.circle}>
-                <Text style={styles.circleText}>4</Text>
-              </View>
-              <View style={styles.box9}>
-                <Text>Adults</Text>
-              </View>
-            </View>
+          <View>
+            <Text style={styles.city}>JPN</Text>
+            <Text style={styles.h2}>15:21</Text>
           </View>
         </View>
-        <View style={styles.facilwrap}>
-          <Text style={styles.facil}>Facilities</Text>
-
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={styles.burgerWrap}>
-              <Icon2
-                style={styles.burger}
-                name="hamburger"
-                color="#FFF"
+        <View style={styles.wrap1}>
+          <Image style={styles.img} source={garuda} />
+          <View style={styles.wrap2}>
+            <View style={styles.star}>
+              <Icon
+                style={styles.starIcon}
+                name="star"
+                color="#FF7F23"
                 size={18}
               />
-              <Text style={styles.burgerText}>Snack</Text>
-            </View>
-
-            <View style={styles.burgerWrap}>
-              <Icon2
-                style={styles.burger}
-                name="hamburger"
-                color="#FFF"
+              <Icon
+                style={styles.starIcon}
+                name="star"
+                color="#FF7F23"
                 size={18}
               />
-              <Text style={styles.burgerText}>Wifi</Text>
-            </View>
-            <View style={styles.burgerWrap}>
-              <Icon2
-                style={styles.burger}
-                name="hamburger"
-                color="#FFF"
+              <Icon
+                style={styles.starIcon}
+                name="star"
+                color="#FF7F23"
                 size={18}
               />
-              <Text style={styles.burgerText}>Restroom</Text>
+              <Icon
+                style={styles.starIcon}
+                name="star"
+                color="#FF7F23"
+                size={18}
+              />
             </View>
-          </ScrollView>
-          <View style={styles.totalWrap}>
-            <Text>Total you’ll pay</Text>
-            <Text style={styles.total}>$ 145,00</Text>
+            <Text style={styles.h5}>120k review</Text>
           </View>
-          <TouchableOpacity style={styles.btn19}>
-            <Text style={styles.h19}>BOOK FLIGHT</Text>
-          </TouchableOpacity>
+        </View>
+        <View style={styles.wrap3}>
+          <View>
+            <Text style={styles.code}>Code</Text>
+            <Text>AB-221</Text>
+          </View>
+          <View>
+            <Text style={styles.code}>Class</Text>
+            <Text>Economy</Text>
+          </View>
+          <View>
+            <Text style={styles.code}>Terminal</Text>
+            <Text>A</Text>
+          </View>
+          <View>
+            <Text style={styles.code}>Gate</Text>
+            <Text>221</Text>
+          </View>
+        </View>
+        <View style={styles.wrap9}>
+          <View style={styles.childWrap}>
+            <View style={styles.circle}>
+              <Text style={styles.circleText}>2</Text>
+            </View>
+            <View style={styles.box9}>
+              <Text>Child</Text>
+            </View>
+          </View>
+          <View style={styles.childWrap}>
+            <View style={styles.circle}>
+              <Text style={styles.circleText}>4</Text>
+            </View>
+            <View style={styles.box9}>
+              <Text>Adults</Text>
+            </View>
+          </View>
         </View>
       </View>
-    );
-  }
-}
+      <View style={styles.facilwrap}>
+        <Text style={styles.facil}>Facilities</Text>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.burgerWrap}>
+            <Icon2
+              style={styles.burger}
+              name="hamburger"
+              color="#FFF"
+              size={18}
+            />
+            <Text style={styles.burgerText}>Snack</Text>
+          </View>
+
+          <View style={styles.burgerWrap}>
+            <Icon2
+              style={styles.burger}
+              name="hamburger"
+              color="#FFF"
+              size={18}
+            />
+            <Text style={styles.burgerText}>Wifi</Text>
+          </View>
+          <View style={styles.burgerWrap}>
+            <Icon2
+              style={styles.burger}
+              name="hamburger"
+              color="#FFF"
+              size={18}
+            />
+            <Text style={styles.burgerText}>Restroom</Text>
+          </View>
+        </ScrollView>
+        <View style={styles.totalWrap}>
+          <Text>Total you’ll pay</Text>
+          <Text style={styles.total}>$ 145,00</Text>
+        </View>
+        <TouchableOpacity onPress={handlePay} style={styles.btn19}>
+          <Text style={styles.h19}>BOOK FLIGHT</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   parent: {
@@ -305,3 +308,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
+
+const mapStateToProps = state => ({
+  trx: state.trx,
+});
+
+const mapDispatchToProps = {proceedToPayment};
+
+export default connect(mapStateToProps, mapDispatchToProps)(FlightDetail);
