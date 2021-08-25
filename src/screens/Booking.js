@@ -21,6 +21,7 @@ const Booking = props => {
 
   useEffect(() => {
     dispatch(getTransactions(token));
+    console.log(transactions);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
