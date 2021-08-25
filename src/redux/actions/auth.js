@@ -1,10 +1,11 @@
 import {http} from '../../helpers/http';
 import {ToastAndroid} from 'react-native';
 // import {API_URL} from '@env';
-const API_URL = 'http://192.168.244.1:8080';
-
+// import {API_URL} from '@env';
+const API_URL = 'http://localhost:8080';
 export const authLogin = (Data, navigation) => {
   return async dispatch => {
+    console.log(Data);
     const form = new URLSearchParams();
     form.append('email', Data.email);
     form.append('password', Data.password);
@@ -67,6 +68,9 @@ export const authRegister = (Data, navigation) => {
   };
 };
 
-export const authLogout = () => ({
-  type: 'AUTH_LOGOUT',
-});
+export const authLogout = () => {
+  return async dispatch => {
+    dispatch({type: 'AUTH_LOGOUT'});
+    dispatch({type: 'CLEAR_PROFILE'});
+  };
+};
