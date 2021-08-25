@@ -40,6 +40,8 @@ const BookingDetail = props => {
     setModal(visible);
   };
 
+  log(detailTransaction, 'booking detail');
+
   const handleProceedToPayment = () => {
     setSpinner(true);
     setModal(false);
@@ -110,72 +112,81 @@ const BookingDetail = props => {
       <View>
         <Text style={styles.title}>Booking Pass</Text>
       </View>
-      <FlatList
-        data={detailTransaction}
-        renderItem={({item}) => (
-          <TouchableOpacity style={styles.shadowbox}>
-            <View style={styles.garudaWrap}>
-              {item.ticket.airline.picture === null ? (
-                <Image style={styles.garuda} source={garuda} />
-              ) : (
-                <Image
-                  style={styles.garuda}
-                  source={{
-                    uri: `${API_URL}${item.ticket.airline.picture}`,
-                  }}
-                />
-              )}
+      <View>
+        <TouchableOpacity style={styles.shadowbox}>
+          <View style={styles.garudaWrap}>
+            {detailTransaction.ticket.airline.picture === null ? (
+              <Image style={styles.garuda} source={garuda} />
+            ) : (
+              <Image
+                style={styles.garuda}
+                source={{
+                  uri: `${API_URL}${detailTransaction.ticket.airline.picture}`,
+                }}
+              />
+            )}
+          </View>
+          <View style={styles.wrap1}>
+            <Text
+              style={
+                styles.h1
+              }>{`${detailTransaction.ticket.code_departure}`}</Text>
+            <View style={styles.imgWrap}>
+              <Image source={vector} />
             </View>
-            <View style={styles.wrap1}>
-              <Text style={styles.h1}>{`${item.ticket.code_departure}`}</Text>
-              <View style={styles.imgWrap}>
-                <Image source={vector} />
+            <Text
+              style={
+                styles.h1
+              }>{`${detailTransaction.ticket.code_destination}`}</Text>
+          </View>
+          <View style={styles.wrap1}>
+            {!detailTransaction.isPayment ? (
+              <TouchableOpacity
+                onPress={() => showModal(true)}
+                style={styles.btn1}>
+                <Text style={styles.btn1h}>Waiting for payment</Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.btn2}>
+                <Text style={styles.btn1h}>Eticket Issued</Text>
               </View>
-              <Text style={styles.h1}>{`${item.ticket.code_destination}`}</Text>
+            )}
+          </View>
+          <View style={styles.row1}>
+            <View>
+              <Text style={styles.h3}>Status</Text>
+              <Text
+                style={styles.h6}>{`${detailTransaction.ticket.seat}`}</Text>
             </View>
-            <View style={styles.wrap1}>
-              {!item.isPayment ? (
-                <TouchableOpacity
-                  onPress={() => showModal(true)}
-                  style={styles.btn1}>
-                  <Text style={styles.btn1h}>Waiting for payment</Text>
-                </TouchableOpacity>
-              ) : (
-                <View style={styles.btn2}>
-                  <Text style={styles.btn1h}>Eticket Issued</Text>
-                </View>
-              )}
+            <View>
+              <Text style={styles.h3}>Class</Text>
+              <Text
+                style={styles.h6}>{`${detailTransaction.ticket.class}`}</Text>
             </View>
-            <View style={styles.row1}>
-              <View>
-                <Text style={styles.h3}>Status</Text>
-                <Text style={styles.h6}>{`${item.ticket.seat}`}</Text>
-              </View>
-              <View>
-                <Text style={styles.h3}>Class</Text>
-                <Text style={styles.h6}>{`${item.ticket.class}`}</Text>
-              </View>
-              <View>
-                <Text style={styles.h3}>Terminal</Text>
-                <Text style={styles.h6}>{`${item.ticket.terminal}`}</Text>
-              </View>
-              <View>
-                <Text style={styles.h3}>Gate</Text>
-                <Text style={styles.h6}>{`${item.ticket.gate}`}</Text>
-              </View>
+            <View>
+              <Text style={styles.h3}>Terminal</Text>
+              <Text
+                style={
+                  styles.h6
+                }>{`${detailTransaction.ticket.terminal}`}</Text>
             </View>
-            <View style={styles.wrapper1}>
-              <Text style={styles.h3}>Departure</Text>
-              <Text style={styles.h6}>{`${new Date()
-                .toLocaleDateString('ind', timeFormat)
-                .slice(0, 9)}, ${item.ticket.departure_time}`}</Text>
+            <View>
+              <Text style={styles.h3}>Gate</Text>
+              <Text
+                style={styles.h6}>{`${detailTransaction.ticket.gate}`}</Text>
             </View>
-            <View style={styles.qrWrap}>
-              <Image source={qrcode} />
-            </View>
-          </TouchableOpacity>
-        )}
-      />
+          </View>
+          <View style={styles.wrapper1}>
+            <Text style={styles.h3}>Departure</Text>
+            <Text style={styles.h6}>{`${new Date()
+              .toLocaleDateString('ind', timeFormat)
+              .slice(0, 9)}, ${detailTransaction.ticket.departure_time}`}</Text>
+          </View>
+          <View style={styles.qrWrap}>
+            <Image source={qrcode} />
+          </View>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };

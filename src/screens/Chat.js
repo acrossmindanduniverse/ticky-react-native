@@ -36,11 +36,11 @@ const Chat = props => {
     minute: 'numeric',
     hour12: true,
   };
+  const [page, setPage] = useState(1);
   const [searchData, setSearchData] = useState({
     search: '',
     sortBy: '',
     sort: '',
-    page: 1,
   });
   const [modal, setModal] = useState(false);
 
@@ -54,10 +54,7 @@ const Chat = props => {
 
   const handleSearchUserNext = () => {
     if (pageInfo.nextPage !== null) {
-      setSearchData({
-        ...searchData,
-        page: searchData.page + 1,
-      });
+      setPage(page + 1);
     }
   };
 
@@ -69,7 +66,7 @@ const Chat = props => {
         searchData.search,
         searchData.sortBy,
         searchData.sort,
-        searchData.page,
+        page,
       ),
     ).then(() => {
       setSearchData({
@@ -77,16 +74,24 @@ const Chat = props => {
         search: '',
         sortBy: '',
         sort: '',
-        page: 1,
       });
     });
+    setPage(1);
   };
 
   useEffect(() => {
-    handleSearchUser();
-  }, [searchData.page]);
+    dispatch(
+      searchUser(
+        token,
+        searchData.search,
+        searchData.sortBy,
+        searchData.sort,
+        page,
+      ),
+    );
+  }, [page]);
 
-  log(searchData.page, 'search data');
+  log(page, 'search data');
 
   useEffect(() => {
     dispatch(getUser(token));
@@ -261,7 +266,6 @@ const Chat = props => {
               }
               style={styles.box1}>
               <View style={styles.imgWrap}>
-                {log(item.user, 'test list')}
                 {item.user.picture === null ? (
                   <Image style={styles.img} source={img} />
                 ) : (

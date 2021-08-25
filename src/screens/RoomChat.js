@@ -99,7 +99,7 @@ const RoomChat = props => {
   }, []);
 
   useEffect(() => {
-    props.getChatRoom(token, user.id);
+    props.getChatRoom(token, [user.id || details.id]);
   }, []);
 
   const handleSendChat = () => {

@@ -14,15 +14,15 @@ export const getUser = token => {
 
 export const searchUser =
   (token, value, sortBy, sort, page) => async dispatch => {
-    console.log(page, 'search action');
+    console.log(page, 'search action123');
     try {
-      if (page < 2) {
+      if (page > 1) {
         const {data} = await http(token).get(
-          `${API_URL}/users?search=${value}&sort[${sortBy}]=${sort}`,
+          `${API_URL}/users?search=${value}&sort[${sortBy}]=${sort}&page=${page}`,
         );
         console.log(data, 'action 123 123');
         dispatch({
-          type: 'SEARCH_USER',
+          type: 'SEARCH_USER_NEXT',
           payload: {
             user: data.pageInfo.totalData.rows,
             pageInfo: data.pageInfo,
@@ -30,10 +30,10 @@ export const searchUser =
         });
       } else {
         const {data} = await http(token).get(
-          `${API_URL}/users?search=${value}&sort[${sortBy}]=${sort}&page=${page}`,
+          `${API_URL}/users?search=${value}&sort[${sortBy}]=${sort}`,
         );
         dispatch({
-          type: 'SEARCH_USER_NEXT',
+          type: 'SEARCH_USER',
           payload: {
             user: data.pageInfo.totalData.rows,
             pageInfo: data.pageInfo,
