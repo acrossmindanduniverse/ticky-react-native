@@ -18,10 +18,11 @@ const SearchResult = ({route, navigation}) => {
   const dispatch = useDispatch();
 
   const getMoreTicket = () => {
+    const sort = filter.split(' ');
     dispatch({type: 'SET_LOADING', payload: true});
     axios
       .get(
-        `${API_URL}/tickets/tickets?departure=${route.params.departure}&destination=${route.params.destination}&searchClass=${route.params.class}&page=${page}`,
+        `${API_URL}/tickets/tickets?departure=${route.params.departure}&destination=${route.params.destination}&searchClass=${route.params.class}&sort[${sort[0]}]=${sort[1]}&page=${page}`,
       )
       .then(res => {
         dispatch({type: 'SET_LOADING', payload: false});
@@ -58,6 +59,7 @@ const SearchResult = ({route, navigation}) => {
   };
   useEffect(() => {
     ticketSort();
+    dispatch({type: 'GET_TICKETS', payload: []});
   }, [filter]);
 
   useEffect(() => {
