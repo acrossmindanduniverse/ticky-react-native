@@ -1,25 +1,66 @@
-import React, {useEffect} from 'react';
-import {Text, StyleSheet, View, Image, TouchableOpacity} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  Text,
+  StyleSheet,
+  View,
+  Image,
+  TouchableOpacity,
+  Modal,
+  TouchableWithoutFeedback,
+  ActivityIndicator,
+} from 'react-native';
 
 import garuda from '../images/garuda2.png';
 import vector from '../images/vector.png';
 import qrcode from '../images/qrcode.png';
-import {connect} from 'react-redux';
-import {getDetailTransaction} from './../redux/actions/trx';
+import {connect, useSelector, useDispatch} from 'react-redux';
+import {
+  getDetailTransaction,
+  proceedToPayment,
+  getTransactions,
+} from './../redux/actions/trx';
 import {FlatList} from 'react-native-gesture-handler';
-const APP_URL_LOCAL = 'http://192.168.244.1:8080';
+import {API_URL} from '@env';
 
 const BookingDetail = props => {
   const log = console.log;
+  const dispatch = useDispatch();
+  const {token} = useSelector(state => state.auth);
   const {detailTransaction} = props.trx;
   const route = props.route;
-  const token =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ1c2VyMUBtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJFJwY0E2NHlqeW1EbE11SXdZYjZzSWVoQVdzWWxkbmpXTDZnNnhiaEZSTWRCOU5HNHVwam51IiwiaWF0IjoxNjI5ODAxMjg1LCJleHAiOjE2Mjk4ODc2ODV9.1YiBd1Ye8YsLQ1ia4LY2LZCWV3Fj6Sft3iAvzqr7P04';
+  const [modal, setModal] = useState(false);
+  const [spinner, setSpinner] = useState(false);
   const timeFormat = {
     hour: 'numeric',
     minute: 'numeric',
     hour12: true,
   };
+
+  const showModal = visible => {
+    setModal(visible);
+  };
+
+  const handleProceedToPayment = () => {
+    setSpinner(true);
+    setModal(false);
+  };
+
+  useEffect(() => {
+    if (spinner) {
+      setTimeout(() => {
+        dispatch(proceedToPayment(token, route.params))
+          .then(() => {
+            dispatch(getTransactions(token));
+            props.getDetailTransaction(token, route.params);
+          })
+          .catch(err => {
+            console.log(err);
+          });
+        setSpinner(false);
+      }, 300);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spinner, detailTransaction]);
 
   log(props.trx, 'params');
   useEffect(() => {
@@ -29,6 +70,43 @@ const BookingDetail = props => {
 
   return (
     <View style={styles.parent}>
+      {spinner && (
+        <Modal transparent={true}>
+          <View style={styles.modalParent}>
+            <ActivityIndicator
+              style={{marginTop: 300}}
+              size="large"
+              color="#fff"
+            />
+          </View>
+        </Modal>
+      )}
+      <Modal
+        visible={modal}
+        onRequestClose={() => setModal(true)}
+        transparent={true}
+        animationType={'fade'}>
+        <TouchableOpacity
+          onPressOut={() => setModal(false)}
+          style={styles.modalParent}>
+          <TouchableWithoutFeedback>
+            <View style={styles.modalContent}>
+              <View style={styles.paymentContainer}>
+                <TouchableOpacity
+                  onPress={handleProceedToPayment}
+                  style={styles.cancelPayment}>
+                  <Text style={styles.paymentText}>Pay now</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setModal(false)}
+                  style={styles.saveItem}>
+                  <Text style={styles.paymentText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
+      </Modal>
       <View>
         <Text style={styles.title}>Booking Pass</Text>
       </View>
@@ -43,7 +121,7 @@ const BookingDetail = props => {
                 <Image
                   style={styles.garuda}
                   source={{
-                    uri: `${APP_URL_LOCAL}${item.ticket.airline.picture}`,
+                    uri: `${API_URL}${item.ticket.airline.picture}`,
                   }}
                 />
               )}
@@ -58,7 +136,7 @@ const BookingDetail = props => {
             <View style={styles.wrap1}>
               {!item.isPayment ? (
                 <TouchableOpacity
-                  onPress={() => props.navigation.navigate('detail', item.id)}
+                  onPress={() => showModal(true)}
                   style={styles.btn1}>
                   <Text style={styles.btn1h}>Waiting for payment</Text>
                 </TouchableOpacity>
@@ -107,6 +185,55 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 20,
     backgroundColor: '#7ECFC0',
+  },
+  modalParent: {
+    position: 'absolute',
+    width: '100%',
+    zIndex: 1,
+    backgroundColor: '#000000a0',
+    height: '100%',
+  },
+  modalContent: {
+    marginHorizontal: 50,
+    backgroundColor: '#fff',
+    borderRadius: 25,
+    marginTop: 200,
+  },
+  closeIcon: {
+    justifyContent: 'center',
+    marginTop: 15,
+    alignItems: 'flex-end',
+    marginRight: 18,
+  },
+  paymentContainer: {
+    justifyContent: 'center',
+    flexDirection: 'row',
+    paddingVertical: 70,
+    alignItems: 'center',
+  },
+  paymentText: {
+    fontSize: 18,
+    color: '#000',
+  },
+  saveItem: {
+    width: '40%',
+    borderRadius: 15,
+    padding: 5,
+    marginHorizontal: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: '#FF7F23',
+    borderWidth: 2,
+  },
+  cancelPayment: {
+    width: '40%',
+    borderRadius: 15,
+    padding: 5,
+    marginHorizontal: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: '#4FCF4D',
+    borderWidth: 2,
   },
   title: {
     color: 'white',

@@ -1,35 +1,101 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable radix */
 import React, {useEffect, useState} from 'react';
-import {Text, View, TouchableOpacity, StyleSheet, Image} from 'react-native';
-import {APP_URL_LOCAL} from '@env';
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  StyleSheet,
+  Image,
+  Modal,
+  FlatList,
+} from 'react-native';
+import {API_URL} from '@env';
 import {io} from 'socket.io-client';
 import {SearchBar} from 'react-native-elements';
 
 import Icon from 'react-native-vector-icons/dist/Ionicons';
-import img from '../images/people1.png';
-import {connect} from 'react-redux';
+import Entypo from 'react-native-vector-icons/dist/Entypo';
+import img from '../images/user.png';
+import {connect, useDispatch, useSelector} from 'react-redux';
 import {getChatList} from './../redux/actions/chat';
-import {FlatList} from 'react-native-gesture-handler';
+import {getUser, searchUser, searchDefault} from './../redux/actions/user';
 
 const Chat = props => {
   const log = console.log;
-  const socket = io(`${APP_URL_LOCAL}`);
+  const dispatch = useDispatch();
+  const {token} = props.auth;
+  const {details, search, searchErr, pageInfo} = useSelector(
+    state => state.user,
+  );
+  const socket = io(`${API_URL}`);
   const {chatList} = props.chat;
-  const token =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ1c2VyMUBtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJFJwY0E2NHlqeW1EbE11SXdZYjZzSWVoQVdzWWxkbmpXTDZnNnhiaEZSTWRCOU5HNHVwam51IiwiaWF0IjoxNjI5ODAxMjg1LCJleHAiOjE2Mjk4ODc2ODV9.1YiBd1Ye8YsLQ1ia4LY2LZCWV3Fj6Sft3iAvzqr7P04';
   const timeFormat = {
     hour: 'numeric',
     minute: 'numeric',
     hour12: true,
   };
+  const [searchData, setSearchData] = useState({
+    search: '',
+    sortBy: '',
+    sort: '',
+    page: 1,
+  });
+  const [modal, setModal] = useState(false);
 
-  log(chatList);
+  const showModal = visible => {
+    setModal(visible);
+  };
+
+  const handleDefault = () => {
+    dispatch(searchDefault());
+  };
+
+  const handleSearchUserNext = () => {
+    if (pageInfo.nextPage !== null) {
+      setSearchData({
+        ...searchData,
+        page: searchData.page + 1,
+      });
+    }
+  };
+
+  const handleSearchUser = () => {
+    handleDefault();
+    dispatch(
+      searchUser(
+        token,
+        searchData.search,
+        searchData.sortBy,
+        searchData.sort,
+        searchData.page,
+      ),
+    ).then(() => {
+      setSearchData({
+        ...searchData,
+        search: '',
+        sortBy: '',
+        sort: '',
+        page: 1,
+      });
+    });
+  };
 
   useEffect(() => {
-    socket.on(parseInt('1'), data => {
+    handleSearchUser();
+  }, [searchData.page]);
+
+  log(searchData.page, 'search data');
+
+  useEffect(() => {
+    dispatch(getUser(token));
+  }, [token]);
+
+  useEffect(() => {
+    socket.on(details?.id, data => {
       props.getChatList(token);
-      log(data, 'real time');
+      log(data, 'real time data');
     });
   }, []);
 
@@ -39,7 +105,68 @@ const Chat = props => {
 
   return (
     <View style={styles.parent}>
-      <TouchableOpacity>
+      <Modal
+        visible={modal}
+        transparent={true}
+        onRequestClose={() => setModal(false)}>
+        <TouchableOpacity
+          onPress={() => setModal(false)}
+          style={styles.modalParent}>
+          <TouchableWithoutFeedback>
+            <View style={styles.modalContent}>
+              <View style={styles.firstModalContent}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setSearchData({
+                      ...searchData,
+                      sortBy: 'fullname',
+                    });
+                    handleSearchUser();
+                  }}
+                  style={styles.primarySortBtn}>
+                  <Text style={styles.primarySortText}>Name</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    setSearchData({
+                      ...searchData,
+                      sortBy: 'email',
+                    });
+                    handleSearchUser();
+                  }}
+                  style={styles.primarySortBtn}>
+                  <Text style={styles.primarySortText}>Email</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.secondModalContent}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setSearchData({
+                      ...searchData,
+                      sort: 'asc',
+                    });
+                    handleSearchUser();
+                  }}
+                  style={styles.primarySortBtn}>
+                  <Text style={styles.primarySortText}>A-Z</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    setSearchData({
+                      ...searchData,
+                      sort: 'desc',
+                    });
+                    handleSearchUser();
+                  }}
+                  style={styles.primarySortBtn}>
+                  <Text style={styles.primarySortText}>Z-A</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
+      </Modal>
+      <TouchableOpacity onPress={() => showModal(true)}>
         <Text style={styles.title1}>Filter</Text>
       </TouchableOpacity>
       <View style={styles.parent2}>
@@ -49,23 +176,103 @@ const Chat = props => {
           containerStyle={styles.seacrhWrap}
           inputStyle={styles.seacrhWrap2}
           inputContainerStyle={styles.seacrhWrap3}
-          placeholder="Where you want to go?"
-          // onChangeText={updateSearch}
-          // value={state.search}
+          placeholder="Search People"
+          onSubmitEditing={handleSearchUser}
+          onChangeText={val =>
+            setSearchData({
+              ...searchData,
+              search: val,
+            })
+          }
+          value={searchData.search}
           searchIcon={{size: 28}}
         />
+        <View>
+          {searchErr === '' ? (
+            <View style={{flexDirection: 'row'}}>
+              <FlatList
+                data={search}
+                horizontal
+                keyExtractor={item => String(item.id)}
+                renderItem={({item}) => (
+                  <TouchableOpacity
+                    onPress={() => {
+                      item.id === details?.id
+                        ? props.navigation.navigate('profile')
+                        : props.navigation.navigate('roomChat', {user: item});
+                      handleDefault();
+                    }}>
+                    <View style={styles.searchData}>
+                      <Image style={styles.img} source={img} />
+                      <View style={styles.userSearchData}>
+                        <Text style={styles.email}>{item.email}</Text>
+                        <Text>{item.fullname}</Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                )}
+              />
+              {search.length > 0 && (
+                <TouchableOpacity
+                  onPress={handleSearchUserNext}
+                  style={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginHorizontal: 15,
+                  }}>
+                  <Entypo name="chevron-right" size={25} />
+                </TouchableOpacity>
+              )}
+            </View>
+          ) : (
+            <View
+              style={{
+                marginVertical: 25,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Text
+                style={{
+                  color: 'red',
+                  fontFamily: 'Poppins-Medium',
+                  fontSize: 18,
+                }}>
+                Zero user has been found
+              </Text>
+            </View>
+          )}
+        </View>
         <FlatList
           data={chatList}
+          keyExtractor={item => String(item.id)}
           renderItem={({item}) => (
             <TouchableOpacity
-              onPress={() => props.navigation.navigate('roomChat', item)}
+              onPress={() =>
+                props.navigation.navigate('roomChat', {
+                  user: {
+                    id:
+                      item.sender !== details?.id
+                        ? item.sender
+                        : item.recipient,
+                    picture: item.user.picture,
+                    name: item.user.fullname,
+                  },
+                })
+              }
               style={styles.box1}>
               <View style={styles.imgWrap}>
-                {log(item, 'chat list')}
-                <Image style={styles.img} source={img} />
+                {log(item.user, 'test list')}
+                {item.user.picture === null ? (
+                  <Image style={styles.img} source={img} />
+                ) : (
+                  <Image
+                    style={styles.img}
+                    source={{uri: `${API_URL}${item.user.picture}`}}
+                  />
+                )}
               </View>
               <View style={styles.box2}>
-                <Text style={styles.name}>Soham Henry</Text>
+                <Text style={styles.name}>{item.user.fullname}</Text>
                 <Text style={styles.chat}>{item.message}</Text>
               </View>
               <View style={styles.box3}>
@@ -87,7 +294,46 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
+  modalParent: {
+    position: 'absolute',
+    width: '100%',
+    zIndex: 1,
+    backgroundColor: '#000000a0',
+    height: '100%',
+  },
+  modalContent: {
+    marginHorizontal: 50,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 25,
+    marginTop: 200,
+  },
+  firstModalContent: {
+    flexDirection: 'row',
+    marginVertical: 7,
+    paddingVertical: 4,
+    borderBottomColor: '#F2F3F4',
+    borderBottomWidth: 3,
+  },
+  secondModalContent: {
+    flexDirection: 'row',
+  },
+  primarySortBtn: {
+    marginVertical: 15,
+    borderWidth: 2,
+    marginHorizontal: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 5,
+    borderRadius: 7,
+  },
+  primarySortText: {
+    fontSize: 18,
+    fontFamily: 'Poppins-Light',
+  },
   parent2: {
+    flex: 1,
     marginHorizontal: 20,
   },
   title1: {
@@ -127,11 +373,18 @@ const styles = StyleSheet.create({
     borderColor: '#F2F3F4',
   },
   imgWrap: {
-    backgroundColor: '#6DDA6B',
     width: 60,
     height: 60,
     borderRadius: 15,
     // marginRight: 30,
+  },
+  searchData: {
+    marginHorizontal: 15,
+    flexDirection: 'row',
+    marginVertical: 10,
+  },
+  userSearchData: {
+    marginHorizontal: 5,
   },
   img: {
     width: 60,
@@ -154,6 +407,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     paddingBottom: 5,
   },
+  email: {
+    fontSize: 18,
+    marginBottom: 6,
+    fontWeight: '600',
+  },
   chat: {
     color: '#6B6B6B',
     fontWeight: '400',
@@ -162,6 +420,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => ({
   chat: state.chat,
+  auth: state.auth,
 });
 
 const mapDispatchToProps = {getChatList};

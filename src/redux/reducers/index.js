@@ -19,9 +19,9 @@ const persistUser = {
 
 const rootReducer = combineReducers({
   auth: persistReducer(persistAuth, auth),
-  // user: persistReducer(persistUser, user),
-  trx,
   chat,
+  user: persistReducer(persistUser, user),
+  trx,
 });
 
 export default rootReducer;

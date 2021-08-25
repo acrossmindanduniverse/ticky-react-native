@@ -5,22 +5,22 @@ import BookingHeader from '../components/BookingHeader';
 import BottomHeader from '../components/BottomHeader';
 import {getTransactions} from '../redux/actions/trx';
 import vector from '../images/vector.png';
-import {connect} from 'react-redux';
+import {connect, useDispatch, useSelector} from 'react-redux';
 import {FlatList} from 'react-native-gesture-handler';
 
 const Booking = props => {
   const log = console.log;
+  const dispatch = useDispatch();
+  const {token} = useSelector(state => state.auth);
   const {transactions} = props.trx;
   const timeFormat = {
     hour: 'numeric',
     minute: 'numeric',
     hour12: true,
   };
-  const token =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ1c2VyMUBtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJFJwY0E2NHlqeW1EbE11SXdZYjZzSWVoQVdzWWxkbmpXTDZnNnhiaEZSTWRCOU5HNHVwam51IiwiaWF0IjoxNjI5ODAxMjg1LCJleHAiOjE2Mjk4ODc2ODV9.1YiBd1Ye8YsLQ1ia4LY2LZCWV3Fj6Sft3iAvzqr7P04';
 
   useEffect(() => {
-    props.getTransactions(token);
+    dispatch(getTransactions(token));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

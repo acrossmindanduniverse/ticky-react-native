@@ -1,13 +1,27 @@
 const initialState = {
   transactions: [],
   detailTransaction: [],
+  data: [],
+  transactionToggle: false,
 };
 
 const trx = (state = initialState, action) => {
   switch (action.type) {
+    case 'CREATE_TRANSACTION': {
+      return {
+        ...state,
+        transactionToggle: state.transactionToggle,
+      };
+    }
     case 'PROCEED_TO_PAYMENT': {
       return {
         ...state,
+      };
+    }
+    case 'TRANSACTION_TOGGLE': {
+      return {
+        ...state,
+        transactionToggle: !state.transactionToggle,
       };
     }
     case 'GET_TRANSACTIONS': {
@@ -22,11 +36,15 @@ const trx = (state = initialState, action) => {
         detailTransaction: action.payload,
       };
     }
-    default: {
+    case 'GET_TICKETS':
+      return {
+        ...state,
+        data: action.payload,
+      };
+    default:
       return {
         ...state,
       };
-    }
   }
 };
 

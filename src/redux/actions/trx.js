@@ -1,5 +1,5 @@
-import {http} from '../../helpers/http';
-import {APP_URL_LOCAL} from '@env';
+import http from '../../helpers/http';
+const API_URL = 'http://192.168.244.1:8080';
 
 export const createTransaction = (token, setData) => async dispatch => {
   const form = new URLSearchParams();
@@ -7,7 +7,7 @@ export const createTransaction = (token, setData) => async dispatch => {
   form.append('id_ticket', setData.id_ticket);
   try {
     const {data} = await http(token).post(
-      `${APP_URL_LOCAL}/transactions/create-transaction`,
+      `${API_URL}/transactions/create-transaction`,
       form,
     );
     dispatch({
@@ -22,7 +22,7 @@ export const createTransaction = (token, setData) => async dispatch => {
 export const proceedToPayment = (token, id) => async dispatch => {
   try {
     const {data} = await http(token).put(
-      `${APP_URL_LOCAL}/transactions/proceed-to-payment/${id}`,
+      `${API_URL}/transactions/proceed-to-payment/${id}`,
     );
     dispatch({
       type: 'PROCEED_TO_PAYMENT',
@@ -33,11 +33,15 @@ export const proceedToPayment = (token, id) => async dispatch => {
   }
 };
 
+export const transactionToggle = () => dispatch => {
+  dispatch({
+    type: 'TRANSACTION_TOGGLE',
+  });
+};
+
 export const getTransactions = token => async dispatch => {
   try {
-    const {data} = await http(token).get(
-      `${APP_URL_LOCAL}/transactions/transaction`,
-    );
+    const {data} = await http(token).get(`${API_URL}/transactions/transaction`);
     dispatch({
       type: 'GET_TRANSACTIONS',
       payload: data.results,
@@ -52,7 +56,7 @@ export const getTransactions = token => async dispatch => {
 export const getDetailTransaction = (token, id) => async dispatch => {
   try {
     const {data} = await http(token).get(
-      `${APP_URL_LOCAL}/transactions/transaction/${id}`,
+      `${API_URL}/transactions/transaction/${id}`,
     );
     console.log(data, 'action');
     dispatch({
@@ -62,4 +66,18 @@ export const getDetailTransaction = (token, id) => async dispatch => {
   } catch (err) {
     console.log(err);
   }
+};
+
+export const getTickets = data => {
+  return async dispatch => {
+    try {
+      const {data: results} = await http().get(
+        `${API_URL}/tickets/tickets?departure=${data.departure}&destination=${data.destination}&searchClass=${data.class}`,
+      );
+      dispatch({type: 'GET_TICKETS', payload: results.results});
+      console.log(results.results);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 };

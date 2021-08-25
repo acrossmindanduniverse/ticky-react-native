@@ -9,148 +9,260 @@ import {
   StyleSheet,
   Image,
   FlatList,
+  TouchableWithoutFeedback,
+  Modal,
 } from 'react-native';
 
 import img from '../images/chat1.png';
 
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
 import {Input} from 'react-native-elements';
-import {sendChat, getChatRoom} from '../redux/actions/chat';
+import {getChatRoom} from '../redux/actions/chat';
 import {connect} from 'react-redux';
 import {io} from 'socket.io-client';
-import {APP_URL_LOCAL} from '@env';
+import {API_URL} from '@env';
 import {TextInput} from 'react-native-gesture-handler';
+import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
+import {sendChat} from './../redux/actions/chat';
+import {getUser} from './../redux/actions/user';
+import defaultImage from '../images/user.png';
+import AntDesign from 'react-native-vector-icons/dist/AntDesign';
 
 const RoomChat = props => {
   const log = console.log;
-  const socket = io(`${APP_URL_LOCAL}`);
+  const socket = io(`${API_URL}`);
+  const {token} = props.auth;
+  const {details} = props.user;
 
-  const route = props.route;
+  const [modal, setModal] = useState(false);
+
+  const {user} = props.route.params;
   const {chatRoom} = props.chat;
   const scrollView = useRef();
   const [chatData, setChatData] = useState({
     message: '',
-    // attachment: '',
+    attachment: '',
   });
   const timeFormat = {
     hour: 'numeric',
     minute: 'numeric',
     hour12: true,
   };
-  const id = '1';
-  const token =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ1c2VyMUBtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJFJwY0E2NHlqeW1EbE11SXdZYjZzSWVoQVdzWWxkbmpXTDZnNnhiaEZSTWRCOU5HNHVwam51IiwiaWF0IjoxNjI5ODAxMjg1LCJleHAiOjE2Mjk4ODc2ODV9.1YiBd1Ye8YsLQ1ia4LY2LZCWV3Fj6Sft3iAvzqr7P04';
+
+  const handleLaunchGallery = () => {
+    launchImageLibrary({}, event => {
+      if (!event.didCancel) {
+        setChatData({
+          ...chatData,
+          attachment: event.assets[0],
+        });
+      }
+
+      setModal(false);
+    });
+  };
+
+  const handleLaunchCamera = () => {
+    launchCamera({}, event => {
+      if (!event.didCancel) {
+        setChatData({
+          ...chatData,
+          attachment: event.assets[0],
+        });
+      }
+
+      setModal(false);
+    });
+  };
+
+  const showModal = visible => {
+    setModal(visible);
+  };
+
+  log(user, 'test route 12345');
 
   const handleScrollToBottom = () => {
     scrollView.current.scrollToEnd({animated: true});
   };
 
   useEffect(() => {
-    socket.on(route.params, data => {
-      props.getChatRoom(token, data.sender);
-      log(data, 'real time');
-    });
+    props.getUser(token);
   }, []);
 
-  log(route, 'route');
+  useEffect(() => {
+    if (details?.id) {
+      socket.on(details.id, data => {
+        props.getChatRoom(token, data.sender);
+        log(data, 'realtime');
+      });
+    }
+  }, []);
 
   useEffect(() => {
-    props.getChatRoom(
-      token,
-      route.params.sender !== parseInt(id)
-        ? route.params.sender
-        : route.params.recipient,
-    );
-  }, [route.params]);
-
-  log(chatData);
+    props.getChatRoom(token, user.id);
+  }, []);
 
   const handleSendChat = () => {
-    props.sendChat(
-      token,
-      route.params.sender !== parseInt(id)
-        ? route.params.sender
-        : route.params.recipient,
-      chatData,
-    );
+    if (chatData.message !== '') {
+      props
+        .sendChat(token, user.id, chatData)
+        .then(() => {
+          props.getChatRoom(token, user.id);
+          setChatData({
+            ...chatData,
+            message: '',
+            attachment: '',
+          });
+        })
+        .catch(err => {
+          log(err);
+        });
+    }
   };
 
   return (
     <View style={styles.parent}>
+      <Modal
+        visible={modal}
+        onRequestClose={() => setModal(true)}
+        transparent={true}
+        animationType={'fade'}>
+        <TouchableOpacity
+          onPressOut={() => setModal(false)}
+          style={styles.modalParent}>
+          <TouchableWithoutFeedback>
+            <View style={styles.modalContent}>
+              <View style={styles.imageLauncher}>
+                <TouchableOpacity
+                  onPress={handleLaunchGallery}
+                  style={styles.cancelPayment}>
+                  <Text style={styles.imageLaunchText}>Galerry</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleLaunchCamera}
+                  style={styles.saveItem}>
+                  <Text style={styles.imageLaunchText}>Camera</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
+      </Modal>
       <View style={styles.parent2}>
         <View style={styles.parentTop}>
-          <Image style={styles.imgTop} source={img} />
-          <Text style={styles.top1}>Zulaikha</Text>
+          {user.picture === null ? (
+            <Image style={styles.imgTop} source={defaultImage} />
+          ) : (
+            <Image
+              style={styles.imgTop}
+              source={{uri: `${API_URL}${user.picture}`}}
+            />
+          )}
+          <Text style={styles.top1}>{user.fullname}</Text>
         </View>
       </View>
-      <ScrollView
-        ref={scrollView}
-        onContentSizeChange={handleScrollToBottom}
-        showsVerticalScrollIndicator={false}
-        vertical={true}>
-        <View style={styles.parent8}>
-          <FlatList
-            data={chatRoom}
-            renderItem={({item}) =>
-              item.sender === parseInt(id) ? (
-                <View style={styles.box1}>
-                  {log(typeof item.sender)}
-                  <View style={styles.box2}>
-                    <View style={styles.chatWrap}>
-                      <Text style={styles.Textchat}>{item.message}</Text>
-                    </View>
-                    <Text style={styles.chat}>{`${new Date(item.createdAt)
-                      .toLocaleDateString('en-US', timeFormat)
-                      .slice(10)}`}</Text>
+      <View style={styles.parent8}>
+        <FlatList
+          ref={scrollView}
+          onContentSizeChange={handleScrollToBottom}
+          data={chatRoom}
+          keyExtractor={item => String(item.id)}
+          renderItem={({item}) =>
+            item.sender === details?.id ? (
+              <View style={styles.box1}>
+                {log(typeof item.sender)}
+                <View style={styles.box2}>
+                  {/* {item.attachment !== null && ( */}
+                  <View style={{alignItems: 'flex-end', marginBottom: 5}}>
+                    <Image
+                      style={{width: 60, height: 60, backgroundColor: 'grey'}}
+                      source={{uri: `${API_URL}${item.attachment}`}}
+                    />
                   </View>
-                  <View style={styles.imgWrap}>
-                    <Image style={styles.img} source={img} />
+                  {/* )} */}
+                  {/* {log(`${API_URL}${item.attachment}`, 'attach')} */}
+                  <View style={styles.chatWrap}>
+                    <Text style={styles.Textchat}>{item.message}</Text>
                   </View>
+                  <Text style={styles.chat}>{`${new Date(item.createdAt)
+                    .toLocaleDateString('en-US', timeFormat)
+                    .slice(10)}`}</Text>
                 </View>
-              ) : (
-                <View style={styles.box1t}>
-                  <View style={styles.imgWrapt}>
-                    <Image style={styles.imgt} source={img} />
-                  </View>
-                  <View style={styles.box2t}>
-                    <View style={styles.chatWrapt}>
-                      <Text style={styles.Textchatt}>{item.message}</Text>
-                    </View>
-                    <Text style={styles.chatt}>{`${new Date(item.createdAt)
-                      .toLocaleDateString('en-US', timeFormat)
-                      .slice(10)}`}</Text>
-                  </View>
+                <View style={styles.imgWrap}>
+                  {details.picture === null ? (
+                    <Image style={styles.imgTop} source={defaultImage} />
+                  ) : (
+                    <Image
+                      style={styles.imgTop}
+                      source={{uri: `${API_URL}${details.picture}`}}
+                    />
+                  )}
                 </View>
-              )
-            }
-            keyExtractor={() => String(route.params.sender)}
-          />
-        </View>
-      </ScrollView>
-
-      <View style={styles.inputWrap}>
-        <View style={styles.inputContainer}>
-          <TouchableOpacity onPress={handleSendChat}>
-            <Icon
-              name="camera"
-              size={24}
-              color="#9F9F9F"
-              style={{marginRight: 10}}
+              </View>
+            ) : (
+              <View style={styles.box1t}>
+                <View style={styles.imgWrapt}>
+                  {user.picture === null ? (
+                    <Image style={styles.imgTop} source={defaultImage} />
+                  ) : (
+                    <Image
+                      style={styles.imgTop}
+                      source={{uri: `${API_URL}${user.picture}`}}
+                    />
+                  )}
+                </View>
+                <View style={styles.box2t}>
+                  <View style={styles.chatWrapt}>
+                    <Text style={styles.Textchatt}>{item.message}</Text>
+                  </View>
+                  <Text style={styles.chatt}>{`${new Date(item.createdAt)
+                    .toLocaleDateString('en-US', timeFormat)
+                    .slice(10)}`}</Text>
+                </View>
+              </View>
+            )
+          }
+        />
+        <View style={styles.inputWrap}>
+          {chatData.attachment !== '' && (
+            <View style={{flexDirection: 'row', marginBottom: 10}}>
+              <Text style={{fontFamily: 'Poppins-Light', fontSize: 25}}>
+                File
+              </Text>
+              <TouchableOpacity
+                onPress={() =>
+                  setChatData({
+                    ...chatData,
+                    attachment: '',
+                  })
+                }>
+                <AntDesign style={{marginLeft: 10}} size={25} name="close" />
+              </TouchableOpacity>
+            </View>
+          )}
+          <View style={styles.inputContainer}>
+            <TouchableOpacity onPress={() => showModal(true)}>
+              <Icon
+                name="camera"
+                size={24}
+                color="#9F9F9F"
+                style={{marginRight: 10}}
+              />
+            </TouchableOpacity>
+            <TextInput
+              placeholder="Type a message..."
+              style={{width: '80%', fontSize: 20}}
+              value={chatData.message}
+              onPressOut={handleScrollToBottom}
+              onSubmitEditing={handleSendChat}
+              onChangeText={val =>
+                setChatData({
+                  ...chatData,
+                  message: val,
+                })
+              }
             />
-          </TouchableOpacity>
-          <TextInput
-            placeholder="Type a message..."
-            style={{width: '80%', fontSize: 20}}
-            value={chatData.message}
-            onPressOut={handleScrollToBottom}
-            onSubmitEditing={handleSendChat}
-            onChangeText={val =>
-              setChatData({
-                ...chatData,
-                message: val,
-              })
-            }
-          />
+          </View>
         </View>
       </View>
     </View>
@@ -162,8 +274,38 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
+  modalParent: {
+    position: 'absolute',
+    width: '100%',
+    zIndex: 1,
+    backgroundColor: '#000000a0',
+    height: '100%',
+  },
+  modalContent: {
+    marginHorizontal: 50,
+    backgroundColor: '#fff',
+    borderRadius: 25,
+    marginTop: 200,
+  },
+  closeIcon: {
+    justifyContent: 'center',
+    marginTop: 15,
+    alignItems: 'flex-end',
+    marginRight: 18,
+  },
+  imageLauncher: {
+    justifyContent: 'center',
+    paddingVertical: 70,
+    alignItems: 'center',
+  },
+  imageLaunchText: {
+    fontSize: 18,
+    marginVertical: 10,
+    color: '#000',
+  },
   parent8: {
     marginHorizontal: 20,
+    flex: 1,
   },
   parentTop: {
     alignItems: 'center',
@@ -288,13 +430,16 @@ const styles = StyleSheet.create({
   },
   inputWrap: {
     marginHorizontal: 20,
+    marginVertical: 10,
   },
 });
 
 const mapStateToProps = state => ({
   chat: state.chat,
+  user: state.user,
+  auth: state.auth,
 });
 
-const mapDispatchToProps = {sendChat, getChatRoom};
+const mapDispatchToProps = {getChatRoom, sendChat, getUser};
 
 export default connect(mapStateToProps, mapDispatchToProps)(RoomChat);

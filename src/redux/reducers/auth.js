@@ -7,12 +7,6 @@ const initialState = {
 
 const auth = (state = initialState, action) => {
   switch (action.type) {
-    // case 'AUTH_TOGGLE': {
-    //   return {
-    //     ...state,
-    //     onAuth: !state.onAuth,
-    //   };
-    // }
     case 'AUTH_LOGIN': {
       return {
         ...state,
@@ -26,12 +20,12 @@ const auth = (state = initialState, action) => {
         errMsg: action.payload,
       };
     }
-    case 'AUTH_NOTIF_TOKEN': {
-      return {
-        ...state,
-        notifToken: action.payload,
-      };
-    }
+    // case 'AUTH_NOTIF_TOKEN': {
+    //   return {
+    //     ...state,
+    //     notifToken: action.payload,
+    //   };
+    // }
     case 'REGISTER': {
       return {
         ...state,

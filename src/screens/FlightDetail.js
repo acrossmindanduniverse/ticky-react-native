@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Text,
   View,
@@ -6,44 +6,116 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
+  Modal,
 } from 'react-native';
 
 import vector from '../images/vector.png';
 import garuda from '../images/garuda.png';
 
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
-import Icon2 from 'react-native-vector-icons/dist/FontAwesome5';
-import {proceedToPayment} from '../redux/actions/trx';
-import {connect} from 'react-redux';
+import CardFacility from '../components/CardFacility';
+import AntDesign from 'react-native-vector-icons/dist/AntDesign';
+import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
+import {useDispatch, useSelector} from 'react-redux';
+import {createTransaction, getTransactions} from './../redux/actions/trx';
+import {ActivityIndicator} from 'react-native';
 
-const FlightDetail = props => {
-  const route = props.route;
-  const token =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ1c2VyMUBtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJFJwY0E2NHlqeW1EbE11SXdZYjZzSWVoQVdzWWxkbmpXTDZnNnhiaEZSTWRCOU5HNHVwam51IiwiaWF0IjoxNjI5ODAxMjg1LCJleHAiOjE2Mjk4ODc2ODV9.1YiBd1Ye8YsLQ1ia4LY2LZCWV3Fj6Sft3iAvzqr7P04';
+const FlightDetail = ({route, createTransaction: transaction, navigation}) => {
+  const dispatch = useDispatch();
+  const {token} = useSelector(state => state.auth);
+  // const {transactionToggle} = useSelector(state => state.trx);
 
-  const handlePay = () => {
-    props.proceedToPayment(token, route.params);
+  const transactionData = {
+    total_amount: 1,
+    id_ticket: route.params.id,
   };
+
+  const [modal, setModal] = useState(false);
+  const [spinner, setSpinner] = useState(false);
+
+  const showModal = visible => {
+    setModal(visible);
+  };
+
+  const handleAddToBookingList = () => {
+    setModal(false);
+    setSpinner(true);
+  };
+
+  useEffect(() => {
+    if (spinner) {
+      setTimeout(() => {
+        dispatch(createTransaction(token, transactionData)).then(() => {
+          dispatch(getTransactions(token));
+        });
+        setSpinner(false);
+        navigation.navigate('booking');
+      }, 300);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spinner]);
 
   return (
     <View style={styles.parent}>
+      {spinner && (
+        <Modal transparent={true} style={styles.loadingContainer}>
+          <View style={styles.modalParent}>
+            <ActivityIndicator
+              style={{marginTop: 300}}
+              size="large"
+              color="#fff"
+            />
+          </View>
+        </Modal>
+      )}
+      <Modal
+        visible={modal}
+        onRequestClose={() => setModal(true)}
+        transparent={true}
+        animationType={'fade'}>
+        <TouchableOpacity
+          onPressOut={() => setModal(false)}
+          style={styles.modalParent}>
+          <TouchableWithoutFeedback>
+            <View style={styles.modalContent}>
+              <View style={styles.paymentContainer}>
+                <TouchableOpacity
+                  onPress={handleAddToBookingList}
+                  style={styles.cancelPayment}>
+                  <Text style={styles.paymentText}>Add to booking list</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setModal(false)}
+                  style={styles.saveItem}>
+                  <Text style={styles.paymentText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
+      </Modal>
       <View style={styles.nav} />
       <View style={styles.shadowbox}>
         <View style={styles.rowbox}>
           <View>
-            <Text style={styles.city}>IDN</Text>
-            <Text style={styles.h1}>12:33</Text>
+            <Text style={styles.city}>{route.params.code_departure}</Text>
+            <Text style={styles.h1}>{route.params.departure_time}</Text>
           </View>
           <View style={styles.box1}>
             <Image source={vector} />
           </View>
           <View>
-            <Text style={styles.city}>JPN</Text>
-            <Text style={styles.h2}>15:21</Text>
+            <Text style={styles.city}>{route.params.code_destination}</Text>
+            <Text style={styles.h2}>{route.params.arrival_time}</Text>
           </View>
         </View>
         <View style={styles.wrap1}>
-          <Image style={styles.img} source={garuda} />
+          <Image
+            style={styles.img}
+            source={{
+              uri: `http://localhost:8080${route.params.airline.picture}`,
+            }}
+          />
           <View style={styles.wrap2}>
             <View style={styles.star}>
               <Icon
@@ -77,19 +149,19 @@ const FlightDetail = props => {
         <View style={styles.wrap3}>
           <View>
             <Text style={styles.code}>Code</Text>
-            <Text>AB-221</Text>
+            <Text>{route.params.seat}</Text>
           </View>
           <View>
             <Text style={styles.code}>Class</Text>
-            <Text>Economy</Text>
+            <Text>{route.params.class}</Text>
           </View>
           <View>
             <Text style={styles.code}>Terminal</Text>
-            <Text>A</Text>
+            <Text>{route.params.terminal}</Text>
           </View>
           <View>
             <Text style={styles.code}>Gate</Text>
-            <Text>221</Text>
+            <Text>{route.params.gate}</Text>
           </View>
         </View>
         <View style={styles.wrap9}>
@@ -113,42 +185,16 @@ const FlightDetail = props => {
       </View>
       <View style={styles.facilwrap}>
         <Text style={styles.facil}>Facilities</Text>
-
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={styles.burgerWrap}>
-            <Icon2
-              style={styles.burger}
-              name="hamburger"
-              color="#FFF"
-              size={18}
-            />
-            <Text style={styles.burgerText}>Snack</Text>
-          </View>
-
-          <View style={styles.burgerWrap}>
-            <Icon2
-              style={styles.burger}
-              name="hamburger"
-              color="#FFF"
-              size={18}
-            />
-            <Text style={styles.burgerText}>Wifi</Text>
-          </View>
-          <View style={styles.burgerWrap}>
-            <Icon2
-              style={styles.burger}
-              name="hamburger"
-              color="#FFF"
-              size={18}
-            />
-            <Text style={styles.burgerText}>Restroom</Text>
-          </View>
+          {route.params.item_facilities.map(res => {
+            return <CardFacility name={res.facility.name} />;
+          })}
         </ScrollView>
         <View style={styles.totalWrap}>
           <Text>Total you’ll pay</Text>
-          <Text style={styles.total}>$ 145,00</Text>
+          <Text style={styles.total}>$ {route.params.price}</Text>
         </View>
-        <TouchableOpacity onPress={handlePay} style={styles.btn19}>
+        <TouchableOpacity onPress={() => showModal(true)} style={styles.btn19}>
           <Text style={styles.h19}>BOOK FLIGHT</Text>
         </TouchableOpacity>
       </View>
@@ -156,12 +202,65 @@ const FlightDetail = props => {
   );
 };
 
+export default FlightDetail;
+
 const styles = StyleSheet.create({
   parent: {
     flex: 1,
     backgroundColor: 'white',
   },
-
+  modalParent: {
+    position: 'absolute',
+    width: '100%',
+    zIndex: 1,
+    backgroundColor: '#000000a0',
+    height: '100%',
+  },
+  loadingContainer: {
+    zIndex: 1,
+  },
+  modalContent: {
+    marginHorizontal: 50,
+    backgroundColor: '#fff',
+    borderRadius: 25,
+    marginTop: 200,
+  },
+  closeIcon: {
+    justifyContent: 'center',
+    marginTop: 15,
+    alignItems: 'flex-end',
+    marginRight: 18,
+  },
+  paymentContainer: {
+    justifyContent: 'center',
+    flexDirection: 'row',
+    paddingVertical: 70,
+    alignItems: 'center',
+  },
+  paymentText: {
+    fontSize: 18,
+    color: '#000',
+  },
+  saveItem: {
+    width: '40%',
+    borderRadius: 15,
+    padding: 5,
+    marginHorizontal: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: '#FF7F23',
+    borderWidth: 2,
+  },
+  cancelPayment: {
+    width: '40%',
+    borderRadius: 15,
+    padding: 5,
+    marginHorizontal: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: '#4FCF4D',
+    borderWidth: 2,
+  },
   nav: {
     backgroundColor: '#7ECFC0',
     height: 180,
@@ -283,6 +382,7 @@ const styles = StyleSheet.create({
   },
   facilwrap: {
     marginHorizontal: 20,
+    flex: 1,
   },
   totalWrap: {
     flexDirection: 'row',
@@ -300,6 +400,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     height: 60,
+    marginHorizontal: 20,
+    marginBottom: 20,
   },
   h19: {
     color: 'white',
@@ -308,11 +410,3 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
-
-const mapStateToProps = state => ({
-  trx: state.trx,
-});
-
-const mapDispatchToProps = {proceedToPayment};
-
-export default connect(mapStateToProps, mapDispatchToProps)(FlightDetail);

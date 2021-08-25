@@ -6,8 +6,10 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
+  ToastAndroid,
 } from 'react-native';
-import img from '../images/profile.png';
+// import img from '../images/profile.png';
+import user from '../images/user.png';
 
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
 import Icon2 from 'react-native-vector-icons/dist/Fontisto';
@@ -15,8 +17,30 @@ import Icon3 from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 
 import BottomHeader from '../components/BottomHeader';
 
-export default class Profile extends Component {
+import {connect} from 'react-redux';
+import {getUser} from '../redux/actions/user';
+import {authLogout} from '../redux/actions/auth';
+import {API_URL} from '@env';
+
+class Profile extends Component {
+  componentDidMount() {
+    const {token} = this.props.auth;
+    this.props.getUser(token);
+    // console.log('ini tokennya');
+    // console.log(token);
+    // console.log(token.token);
+  }
+
+  onLogout = () => {
+    this.props.authLogout();
+    ToastAndroid.showWithGravity(
+      'You are has been Log out',
+      ToastAndroid.LONG,
+      ToastAndroid.TOP,
+    );
+  };
   render() {
+    const {details} = this.props.user;
     return (
       <View style={styles.parent}>
         <View>
@@ -28,12 +52,24 @@ export default class Profile extends Component {
             </TouchableOpacity>
           </View>
           <View style={styles.parent3}>
-            <View style={styles.imgWrap}>
-              <Image style={styles.img} source={img} />
-            </View>
+            {details.picture !== null ? (
+              <View style={styles.imgWrap}>
+                <Image
+                  style={styles.img}
+                  source={{
+                    uri: `${API_URL}${details.picture}`,
+                  }}
+                />
+              </View>
+            ) : (
+              <View style={styles.imgWrap}>
+                <Image style={styles.img} source={user} />
+              </View>
+            )}
+
             <View style={styles.parent4}>
-              <Text style={styles.h3}>Mike Kowalski</Text>
-              <Text style={styles.h4}>Medan, Indonesia</Text>
+              <Text style={styles.h3}>{details.fullname}</Text>
+              <Text style={styles.h4}>{details.email}</Text>
             </View>
           </View>
           <View style={styles.parent5}>
@@ -71,10 +107,10 @@ export default class Profile extends Component {
               <Icon2 name="player-settings" color="#979797" size={30} />
               <Text style={styles.h9}>Settings</Text>
             </View>
-            <View style={styles.parent8}>
+            <TouchableOpacity onPress={this.onLogout} style={styles.parent8}>
               <Icon3 name="logout" color="#F24545" size={30} />
               <Text style={styles.h10}>Logout</Text>
-            </View>
+            </TouchableOpacity>
           </View>
         </View>
         <BottomHeader navigation={this.props.navigation} />
@@ -82,6 +118,15 @@ export default class Profile extends Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  user: state.user,
+  auth: state.auth,
+});
+
+const mapDispatchToProps = {getUser, authLogout};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Profile);
 
 const styles = StyleSheet.create({
   parent: {
