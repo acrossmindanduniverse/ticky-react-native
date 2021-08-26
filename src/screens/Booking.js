@@ -23,14 +23,16 @@ const Booking = props => {
 
   useEffect(() => {
     dispatch(getTransactions(token));
+    console.log(transactions);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <View style={styles.parent}>
       <BookingHeader navigation={props.navigation} />
-      <View style={{}}>
+      <View style={{flex: 1}}>
         <FlatList
+          showsVerticalScrollIndicator={false}
           data={transactions}
           renderItem={({item}) => (
             <TouchableOpacity
@@ -71,8 +73,9 @@ const Booking = props => {
           )}
         />
       </View>
-
-      <BottomHeader navigation={props.navigation} />
+      <View style={{marginVertical: 10, flex: 0.12}}>
+        <BottomHeader navigation={props.navigation} />
+      </View>
     </View>
   );
 };
@@ -80,17 +83,15 @@ const Booking = props => {
 const styles = StyleSheet.create({
   parent: {
     flex: 1,
-    paddingVertical: 20,
     backgroundColor: '#fff',
   },
   shadowbox: {
     marginHorizontal: 25,
     backgroundColor: '#fff',
-    marginTop: 20,
+    marginVertical: 15,
     borderRadius: 12,
     height: 180,
     paddingHorizontal: 20,
-    // alignItems: 'center',
     paddingVertical: 15,
     shadowOffset: {
       width: 0,
@@ -98,30 +99,9 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.23,
     shadowRadius: 2.62,
-
     elevation: 4,
   },
-  shadowbox2: {
-    marginHorizontal: 25,
-    backgroundColor: '#fff',
-    marginTop: 30,
-    borderRadius: 12,
-    height: 180,
-    paddingHorizontal: 20,
-    // alignItems: 'center',
-    paddingVertical: 15,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
 
-    elevation: 4,
-  },
-  // wrap: {
-  //   marginBottom: 100,
-  // },
   wrap1: {
     flexDirection: 'row',
     paddingVertical: 5,

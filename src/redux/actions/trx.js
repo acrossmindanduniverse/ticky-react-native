@@ -1,6 +1,6 @@
 import http from '../../helpers/http';
-const API_URL = 'http://192.168.244.1:8080';
-
+// import {API_URL} from '@env';
+const API_URL = 'http://localhost:8080';
 export const createTransaction = (token, setData) => async dispatch => {
   const form = new URLSearchParams();
   form.append('total_amount', setData.total_amount);

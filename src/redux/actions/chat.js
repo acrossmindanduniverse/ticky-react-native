@@ -1,6 +1,6 @@
-import {API_URL} from '@env';
+// import {API_URL} from '@env';
 import {http} from './../../helpers/http';
-
+const API_URL = 'http://localhost:8080';
 export const getChatList = token => async dispatch => {
   try {
     const {data} = await http(token).get(`${API_URL}/chats/chat`);
