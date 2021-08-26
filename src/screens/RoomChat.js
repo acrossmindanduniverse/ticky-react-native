@@ -172,15 +172,14 @@ const RoomChat = props => {
               <View style={styles.box1}>
                 {log(typeof item.sender)}
                 <View style={styles.box2}>
-                  {/* {item.attachment !== null && ( */}
-                  <View style={{alignItems: 'flex-end', marginBottom: 5}}>
-                    <Image
-                      style={{width: 60, height: 60, backgroundColor: 'grey'}}
-                      source={{uri: `${API_URL}${item.attachment}`}}
-                    />
-                  </View>
-                  {/* )} */}
-                  {/* {log(`${API_URL}${item.attachment}`, 'attach')} */}
+                  {item.attachment !== null && (
+                    <View style={{alignItems: 'flex-end', marginBottom: 5}}>
+                      <Image
+                        style={{width: 60, height: 60, backgroundColor: 'grey'}}
+                        source={{uri: `${API_URL}${item.attachment}`}}
+                      />
+                    </View>
+                  )}
                   <View style={styles.chatWrap}>
                     <Text style={styles.Textchat}>{item.message}</Text>
                   </View>
@@ -212,6 +211,14 @@ const RoomChat = props => {
                   )}
                 </View>
                 <View style={styles.box2t}>
+                  {item.attachment !== null && (
+                    <View style={{marginBottom: 5}}>
+                      <Image
+                        style={{width: 60, height: 60, backgroundColor: 'grey'}}
+                        source={{uri: `${API_URL}${item.attachment}`}}
+                      />
+                    </View>
+                  )}
                   <View style={styles.chatWrapt}>
                     <Text style={styles.Textchatt}>{item.message}</Text>
                   </View>

@@ -19,7 +19,6 @@ import {
   proceedToPayment,
   getTransactions,
 } from './../redux/actions/trx';
-import {FlatList} from 'react-native-gesture-handler';
 import {API_URL} from '@env';
 
 const BookingDetail = props => {
