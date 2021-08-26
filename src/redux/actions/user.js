@@ -1,7 +1,7 @@
 import {http} from '../../helpers/http';
 import {ToastAndroid} from 'react-native';
-// import {API_URL} from '@env';
-const API_URL = 'http://localhost:8080';
+import {API_URL} from '@env';
+// const API_URL = 'http://localhost:8080';
 export const getUser = token => {
   return async dispatch => {
     const {data} = await http(token).get(`${API_URL}/users/signed`);

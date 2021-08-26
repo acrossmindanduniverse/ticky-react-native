@@ -5,7 +5,6 @@ import {
   Text,
   View,
   TouchableOpacity,
-  ScrollView,
   StyleSheet,
   Image,
   FlatList,
@@ -13,12 +12,9 @@ import {
   Modal,
 } from 'react-native';
 
-import img from '../images/chat1.png';
-
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
-import {Input} from 'react-native-elements';
-import {getChatRoom} from '../redux/actions/chat';
-import {connect} from 'react-redux';
+import {getChatRoom, deleteChat, getChatList} from '../redux/actions/chat';
+import {connect, useDispatch} from 'react-redux';
 import {io} from 'socket.io-client';
 import {API_URL} from '@env';
 import {TextInput} from 'react-native-gesture-handler';
@@ -27,14 +23,16 @@ import {sendChat} from './../redux/actions/chat';
 import {getUser} from './../redux/actions/user';
 import defaultImage from '../images/user.png';
 import AntDesign from 'react-native-vector-icons/dist/AntDesign';
-
 const RoomChat = props => {
   const log = console.log;
+  const dispatch = useDispatch();
   const socket = io(`${API_URL}`);
   const {token} = props.auth;
   const {details} = props.user;
 
   const [modal, setModal] = useState(false);
+  const [deleteToggle, setDeleteToggle] = useState(false);
+  const [saveId, setSaveId] = useState();
 
   const {user} = props.route.params;
   const {chatRoom} = props.chat;
@@ -79,7 +77,24 @@ const RoomChat = props => {
     setModal(visible);
   };
 
-  log(user, 'test route 12345');
+  const handleDeleteToggle = (visible, id) => {
+    setDeleteToggle(visible);
+    setSaveId(id);
+  };
+
+  const handleDeleteChat = item => {
+    const form = {
+      id: item.sender !== details?.id ? item.sender : item.recipient,
+      chatId: item.id,
+    };
+    props.deleteChat(token, form.id, form.chatId);
+    setDeleteToggle(false);
+    // setTimeout(() => {
+    //   props.getChatRoom(token, [user.id || details.id]);
+    // }, 200);
+  };
+
+  // log(saveId, 'test route 12345');
 
   const handleScrollToBottom = () => {
     scrollView.current.scrollToEnd({animated: true});
@@ -104,19 +119,17 @@ const RoomChat = props => {
 
   const handleSendChat = () => {
     if (chatData.message !== '') {
-      props
-        .sendChat(token, user.id, chatData)
-        .then(() => {
-          props.getChatRoom(token, user.id);
-          setChatData({
-            ...chatData,
-            message: '',
-            attachment: '',
-          });
-        })
-        .catch(err => {
-          log(err);
+      props.sendChat(token, user.id, chatData).then(() => {
+        props.getChatRoom(token, user.id);
+        setChatData({
+          ...chatData,
+          message: '',
+          attachment: '',
         });
+      });
+      dispatch(getChatList(token)).catch(err => {
+        log(err);
+      });
     }
   };
 
@@ -180,8 +193,29 @@ const RoomChat = props => {
                       />
                     </View>
                   )}
-                  <View style={styles.chatWrap}>
-                    <Text style={styles.Textchat}>{item.message}</Text>
+                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    {deleteToggle && item.id === saveId?.id && (
+                      <View style={{flexDirection: 'row'}}>
+                        <TouchableOpacity
+                          onPress={() => setDeleteToggle(false)}
+                          style={{marginRight: 20}}>
+                          <AntDesign name="close" size={25} />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => handleDeleteChat(item)}>
+                          <Icon
+                            name="trash-o"
+                            size={25}
+                            style={{marginRight: 20}}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                    <TouchableOpacity
+                      onLongPress={() => handleDeleteToggle(true, item)}
+                      style={styles.chatWrap}>
+                      <Text style={styles.Textchat}>{item.message}</Text>
+                    </TouchableOpacity>
                   </View>
                   <Text style={styles.chat}>{`${new Date(item.createdAt)
                     .toLocaleDateString('en-US', timeFormat)
@@ -447,6 +481,6 @@ const mapStateToProps = state => ({
   auth: state.auth,
 });
 
-const mapDispatchToProps = {getChatRoom, sendChat, getUser};
+const mapDispatchToProps = {getChatRoom, sendChat, getUser, deleteChat};
 
 export default connect(mapStateToProps, mapDispatchToProps)(RoomChat);

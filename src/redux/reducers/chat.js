@@ -22,6 +22,11 @@ const chat = (state = initialState, action) => {
         ...state,
       };
     }
+    case 'DELETE_CHAT': {
+      return {
+        ...state,
+      };
+    }
     default: {
       return {
         ...state,

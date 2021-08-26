@@ -92,8 +92,6 @@ const Chat = props => {
     );
   }, [page]);
 
-  log(page, 'search data');
-
   useEffect(() => {
     dispatch(getUser(token));
   }, [token]);
@@ -402,10 +400,11 @@ const styles = StyleSheet.create({
   box1: {
     marginTop: 30,
     flexDirection: 'row',
-    justifyContent: 'space-between',
   },
   box2: {
+    flex: 1,
     marginRight: 40,
+    marginLeft: 20,
     justifyContent: 'center',
   },
   box3: {
